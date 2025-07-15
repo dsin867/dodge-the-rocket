@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>🚀 Dodge the Rocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        html,
+        body {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"><text y="24" font-size="24">🛸</text></svg>') 16 16, auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #66fcf1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #1f2833;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #45a29e;
+            text-align: center;
+        }
+
+        th {
+            background-color: #45a29e;
+            color: #0b0c10;
+        }
+
+        button {
+            padding: 6px 12px;
+            background-color: #66fcf1;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #45a29e;
+        }
+
+        .rocket {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            font-size: 50px;
+            transform: rotate(-45deg); /* Rotate rocket upright */
+            animation: launch 10s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes launch {
+            0% {
+                bottom: -100px;
+            }
+
+            100% {
+                bottom: 110%;
+            }
+        }
+
+        .gameOverScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+        }
+
+        #mouseTrailCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            /* Don't block mouse interactions */
+            z-index: 500;
+            /* Behind the rockets but above the background */
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="mouseTrailCanvas"></canvas>
+
+    <!-- Game Over Popup -->
+    <div id="gameOverScreen" class="gameOverScreen">
+        <h2>💥 Game Over!</h2>
+        <button id="playAgainBtn">Play</button>
+    </div>
+
+    <script src="ui/rocket-launcher.js"></script>
+
+    <script>
+        window.onload = () => {
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const playAgainBtn = document.getElementById('playAgainBtn');
+
+            let rocketLauncher;
+            let launchInterval;
+
+            function startGame() {
+                rocketLauncher = new RocketLauncher(gameOver);
+                launchInterval = setInterval(() => {
+                    rocketLauncher.launchRocket();
+                }, 75);
+            }
+
+            function gameOver() {
+                clearInterval(launchInterval);
+                gameOverScreen.style.display = 'flex';
+                playAgainBtn.textContent = 'Play Again'; // Change button to "Play Again"
+            }
+
+            playAgainBtn.addEventListener('click', () => {
+                // Remove all previous rockets
+                document.querySelectorAll('.rocket').forEach(r => r.remove());
+                gameOverScreen.style.display = 'none';
+                clearTrail(); // Clear the canvas trail
+                startGame();
+            });
+        }
+
+    </script>
+
+    <script>
+        // Mouse trail logic
+        const canvas = document.getElementById('mouseTrailCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        window.addEventListener('resize', () => {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        });
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let lastX = 0;
+        let lastY = 0;
+        let isFirstMove = true;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function drawTrail() {
+            ctx.strokeStyle = '#66fcf1';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+
+            ctx.beginPath();
+            if (isFirstMove) {
+                lastX = mouseX;
+                lastY = mouseY;
+                isFirstMove = false;
+            }
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.stroke();
+
+            lastX = mouseX;
+            lastY = mouseY;
+
+            // Fade out old lines by drawing a semi-transparent rectangle over the canvas
+            ctx.fillStyle = 'rgba(11, 12, 16, 0.1)'; // Same as background color with transparency
+            ctx.fillRect(0, 0, width, height);
+
+            requestAnimationFrame(drawTrail);
+        }
+
+        function clearTrail() {
+            ctx.clearRect(0, 0, width, height);
+            isFirstMove = true; // So it doesn't draw a line from the old mouse position
+        }
+
+        drawTrail();
+    </script>
+
+</body>
+
+</html>
