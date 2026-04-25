@@ -621,6 +621,7 @@
             let invincibilityTimer = null;
             let mouseOutOfBounds = false;
             let pausedTime = 0;
+            let pauseStartTime = 0;
             let currentMission = 1;
             let missionDuration = 60; // Start with 60 seconds
             let missionStartTime = 0;
@@ -703,7 +704,7 @@
                 
                 // Show countdown
                 powerUpCountdown.style.display = 'block';
-                let countdown = 5;
+                let countdown = 10;
                 countdownNumber.textContent = countdown;
                 
                 const countdownInterval = setInterval(() => {
@@ -718,16 +719,16 @@
                     }
                 }, 1000);
                 
-                // Remove power-up after 5 seconds
+                // Remove power-up after 10 seconds
                 setTimeout(() => {
                     if (powerUp.parentNode) {
                         powerUp.remove();
                     }
                     powerUpCountdown.style.display = 'none';
-                }, 5000);
+                }, 10000);
                 
-                // Click handler for collecting power-up
-                powerUp.addEventListener('click', () => {
+                // Hover handler for collecting power-up
+                powerUp.addEventListener('mouseenter', () => {
                     if (!gamePaused) {
                         activateInvincibility();
                         powerUp.remove();
@@ -838,7 +839,7 @@
                     // Just went out of bounds - FULLY pause game
                     gamePaused = true;
                     gamePausedIndicator.style.display = 'block';
-                    pausedTime = Date.now();
+                    pauseStartTime = Date.now();
                     
                     // Pause all rocket animations
                     document.querySelectorAll('.rocket, .collectible').forEach(obj => {
@@ -848,8 +849,9 @@
                     // Just came back in bounds - resume game
                     gamePaused = false;
                     gamePausedIndicator.style.display = 'none';
-                    if (pausedTime > 0) {
-                        pausedTime = Date.now() - pausedTime;
+                    if (pauseStartTime > 0) {
+                        pausedTime += Date.now() - pauseStartTime;
+                        pauseStartTime = 0;
                     }
                     
                     // Resume all rocket animations
@@ -867,6 +869,7 @@
                 isInvincible = false;
                 mouseOutOfBounds = false;
                 pausedTime = 0;
+                pauseStartTime = 0;
                 gameStartTime = Date.now();
                 missionStartTime = gameStartTime;
                 

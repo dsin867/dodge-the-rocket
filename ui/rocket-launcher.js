@@ -12,9 +12,29 @@ class Rocket {
         const duration = 3 + Math.random() * 3;
         this.element.style.setProperty('--duration', `${duration}s`);
 
-        // Random horizontal position across full width including sides
-        const randomLeft = Math.floor(Math.random() * 90) + 5; // 5% to 95%
-        this.element.style.left = `${randomLeft}%`;
+        // Spawn with slight bias towards left side, middle, and right side zones
+        const wallOffset = 58;
+        const rocketSize = 50;
+        const playAreaWidth = window.innerWidth - 2 * wallOffset;
+        const sideZone = Math.floor(playAreaWidth * 0.2);
+        const middleZone = Math.floor(playAreaWidth * 0.2);
+        const middleStart = wallOffset + Math.floor((playAreaWidth - middleZone) / 2);
+        let randomLeft;
+        const roll = Math.random();
+        if (roll < 0.2) {
+            // Left side zone
+            randomLeft = wallOffset + Math.floor(Math.random() * sideZone);
+        } else if (roll < 0.4) {
+            // Right side zone
+            randomLeft = wallOffset + playAreaWidth - rocketSize - Math.floor(Math.random() * sideZone);
+        } else if (roll < 0.6) {
+            // Middle zone
+            randomLeft = middleStart + Math.floor(Math.random() * (middleZone - rocketSize));
+        } else {
+            // Fully random across play area
+            randomLeft = wallOffset + Math.floor(Math.random() * (playAreaWidth - rocketSize));
+        }
+        this.element.style.left = `${randomLeft}px`;
 
         document.body.appendChild(this.element);
         this.dodged = false;
@@ -86,9 +106,12 @@ class Collectible {
         const duration = 6 + Math.random() * 4;
         this.element.style.setProperty('--duration', `${duration}s`);
 
-        // Random horizontal position across full width
-        const randomLeft = Math.floor(Math.random() * 90) + 5; // 5% to 95%
-        this.element.style.left = `${randomLeft}%`;
+        // Spawn across the full play area (wall-to-wall), using px to avoid safe zones near walls
+        const wallOffset = 58;
+        const collectibleSize = 35;
+        const playAreaWidth = window.innerWidth - 2 * wallOffset;
+        const randomLeft = wallOffset + Math.floor(Math.random() * (playAreaWidth - collectibleSize));
+        this.element.style.left = `${randomLeft}px`;
 
         document.body.appendChild(this.element);
         this.collected = false;
