@@ -48,7 +48,7 @@
                 radial-gradient(2px 2px at 160px 30px, #fff, transparent);
             background-repeat: repeat;
             background-size: 200px 100px;
-            animation: sparkle 3s linear infinite;
+            opacity: 0.6;
         }
 
         .stars::after {
@@ -62,12 +62,7 @@
                 radial-gradient(1px 1px at 180px 90px, #66fcf1, transparent);
             background-repeat: repeat;
             background-size: 250px 150px;
-            animation: sparkle 4s linear infinite reverse;
-        }
-
-        @keyframes sparkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+            opacity: 0.6;
         }
 
         html,
@@ -98,10 +93,8 @@
             left: -4px;
             right: -4px;
             bottom: -4px;
-            background: linear-gradient(45deg, #66fcf1, #45a29e, #66fcf1);
             border-radius: 10px;
             z-index: -1;
-            animation: borderGlow 2s ease-in-out infinite alternate;
         }
 
         @keyframes borderGlow {
@@ -149,12 +142,25 @@
             border: 2px solid #45a29e;
         }
 
+        .points-display {
+            position: fixed;
+            top: 100px;
+            left: 70px;
+            color: #ffd93d;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-shadow: 0 0 15px #ffd93d, 0 0 30px #ffd93d;
+            z-index: 100;
+            background: rgba(11, 12, 16, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd93d;
+            letter-spacing: 2px;
+        }
+
         /* Play button styling */
         .play-button {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
             padding: 20px 40px;
             background: linear-gradient(45deg, #66fcf1, #45a29e);
             color: #0b0c10;
@@ -175,7 +181,7 @@
         }
 
         .play-button:hover {
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: scale(1.1);
             box-shadow: 
                 0 0 50px #66fcf1,
                 0 15px 30px rgba(0, 0, 0, 0.4);
@@ -186,38 +192,281 @@
             50% { box-shadow: 0 0 50px #66fcf1, 0 10px 20px rgba(0, 0, 0, 0.3); }
         }
 
-        /* Home screen styles */
         .home-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(11, 12, 16, 0.9);
+            background: rgba(11, 12, 16, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 500;
+            gap: 28px;
         }
 
         .home-title {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 900;
             color: #66fcf1;
             text-shadow: 
                 0 0 20px #66fcf1,
                 0 0 40px #66fcf1;
-            margin-bottom: 50px;
             animation: homeTitleFloat 3s ease-in-out infinite alternate;
             text-align: center;
             letter-spacing: 4px;
+            margin: 0;
+        }
+
+        .home-subtitle {
+            font-size: 1rem;
+            color: #45a29e;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -16px;
         }
 
         @keyframes homeTitleFloat {
-            0% { transform: translateY(-10px); }
-            100% { transform: translateY(10px); }
+            0% { transform: translateY(-8px); }
+            100% { transform: translateY(8px); }
         }
+
+        .difficulty-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .difficulty-label {
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: #45a29e;
+            text-transform: uppercase;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .diff-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 16px 28px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.2s ease;
+        }
+
+        .diff-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .diff-icon { font-size: 1.4rem; }
+
+        .diff-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .diff-desc {
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .diff-easy { color: #26de81; }
+        .diff-easy:hover, .diff-easy.diff-selected {
+            border-color: #26de81;
+            background: rgba(38, 222, 129, 0.15);
+            box-shadow: 0 0 18px rgba(38, 222, 129, 0.4);
+        }
+
+        .diff-medium { color: #ffd93d; }
+        .diff-medium:hover, .diff-medium.diff-selected {
+            border-color: #ffd93d;
+            background: rgba(255, 217, 61, 0.15);
+            box-shadow: 0 0 18px rgba(255, 217, 61, 0.4);
+        }
+
+        .diff-hard { color: #ff4757; }
+        .diff-hard:hover, .diff-hard.diff-selected {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.15);
+            box-shadow: 0 0 18px rgba(255, 71, 87, 0.4);
+        }
+
+        .home-instructions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+            color: #c5c6c7;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        .instruction-item {
+            padding: 4px 0;
+        }
+
+        .levels-button {
+            padding: 12px 32px;
+            background: transparent;
+            color: #66fcf1;
+            border: 2px solid #66fcf1;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.25s ease;
+        }
+
+        .levels-button:hover {
+            background: rgba(102, 252, 241, 0.12);
+            box-shadow: 0 0 22px rgba(102, 252, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .levels-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(11, 12, 16, 0.97);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 600;
+            gap: 24px;
+        }
+
+        .levels-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #66fcf1;
+            text-shadow: 0 0 20px #66fcf1, 0 0 40px #66fcf1;
+            letter-spacing: 4px;
+        }
+
+        .levels-subtitle {
+            font-size: 0.8rem;
+            color: #45a29e;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -14px;
+        }
+
+        .levels-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            max-width: 900px;
+            padding: 0 20px;
+        }
+
+        .level-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 20px 18px;
+            border-radius: 14px;
+            border: 2px solid;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.2s ease;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .level-card.unlocked {
+            background: rgba(102, 252, 241, 0.05);
+            border-color: #66fcf1;
+            color: #66fcf1;
+            cursor: pointer;
+        }
+
+        .level-card.unlocked:hover {
+            transform: translateY(-5px);
+            background: rgba(102, 252, 241, 0.13);
+            box-shadow: 0 0 28px rgba(102, 252, 241, 0.4);
+        }
+
+        .level-card.locked {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        .level-card-icon { font-size: 1.5rem; }
+        .level-card-number { font-size: 1.6rem; font-weight: 900; }
+        .level-card-name { font-size: 0.62rem; letter-spacing: 1px; }
+        .level-card-duration { font-size: 0.58rem; opacity: 0.7; margin-top: 2px; }
+
+        .levels-back-btn {
+            padding: 12px 36px;
+            background: transparent;
+            color: #45a29e;
+            border: 2px solid #45a29e;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .levels-back-btn:hover {
+            background: rgba(69, 162, 158, 0.12);
+            box-shadow: 0 0 18px rgba(69, 162, 158, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .levels-diff-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .levels-diff-tab {
+            padding: 8px 22px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .levels-diff-tab.easy  { color: #26de81; }
+        .levels-diff-tab.medium { color: #ffd93d; }
+        .levels-diff-tab.hard  { color: #ff4757; }
+
+        .levels-diff-tab.easy.active  { border-color: #26de81; background: rgba(38,222,129,0.12); box-shadow: 0 0 14px rgba(38,222,129,0.35); }
+        .levels-diff-tab.medium.active { border-color: #ffd93d; background: rgba(255,217,61,0.12);  box-shadow: 0 0 14px rgba(255,217,61,0.35);  }
+        .levels-diff-tab.hard.active  { border-color: #ff4757; background: rgba(255,71,87,0.12);   box-shadow: 0 0 14px rgba(255,71,87,0.35);   }
+
+        .levels-diff-tab:hover { transform: translateY(-2px); }
 
         .rocket {
             position: fixed;
@@ -335,6 +584,156 @@
                 filter: drop-shadow(0 0 20px #ffd93d) drop-shadow(0 0 40px #ffd93d);
                 transform: scale(1.2);
             }
+        }
+
+        /* Forcefield effect when invincible */
+        #forcefield {
+            display: none;
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1400;
+            transform: translate(-50%, -50%);
+        }
+
+        #forcefield.active {
+            display: block;
+            background: 
+                radial-gradient(circle at 35% 35%, rgba(102,252,241,0.45) 0%, transparent 55%),
+                radial-gradient(circle, rgba(102,252,241,0.15) 0%, rgba(102,252,241,0.05) 55%, transparent 100%);
+            border: 2px solid rgba(102,252,241,0.9);
+            box-shadow:
+                0 0 12px #66fcf1,
+                0 0 30px rgba(102,252,241,0.7),
+                0 0 70px rgba(102,252,241,0.35),
+                inset 0 0 25px rgba(102,252,241,0.3),
+                inset 0 0 6px rgba(255,255,255,0.5);
+            animation: forcefieldPulse 1.2s ease-in-out infinite;
+        }
+
+        /* Outer slow-spinning dashed orbit */
+        #forcefield::before {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+            border: 2px dashed rgba(102,252,241,0.55);
+            box-shadow: 0 0 10px rgba(102,252,241,0.3);
+            animation: forcefieldOrbit 2s linear infinite;
+        }
+
+        /* Inner fast-spinning arc */
+        #forcefield::after {
+            content: '';
+            position: absolute;
+            inset: -28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(102,252,241,0.8);
+            border-right-color: rgba(102,252,241,0.4);
+            box-shadow: 0 0 16px rgba(102,252,241,0.4);
+            animation: forcefieldOrbit 0.75s linear infinite reverse;
+        }
+
+        @keyframes forcefieldPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow:
+                    0 0 12px #66fcf1,
+                    0 0 30px rgba(102,252,241,0.7),
+                    0 0 70px rgba(102,252,241,0.35),
+                    inset 0 0 25px rgba(102,252,241,0.3),
+                    inset 0 0 6px rgba(255,255,255,0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.12);
+                box-shadow:
+                    0 0 20px #66fcf1,
+                    0 0 55px rgba(102,252,241,0.85),
+                    0 0 100px rgba(102,252,241,0.45),
+                    inset 0 0 35px rgba(102,252,241,0.4),
+                    inset 0 0 10px rgba(255,255,255,0.6);
+            }
+        }
+
+        @keyframes forcefieldOrbit {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* Warning state — red crackling */
+        #forcefield.warning {
+            border-color: rgba(255,71,87,0.95);
+            background:
+                radial-gradient(circle at 35% 35%, rgba(255,71,87,0.45) 0%, transparent 55%),
+                radial-gradient(circle, rgba(255,71,87,0.18) 0%, rgba(255,71,87,0.05) 55%, transparent 100%);
+            animation: forcefieldPulseWarning 0.35s ease-in-out infinite, forcefieldShake 0.1s linear infinite;
+        }
+
+        #forcefield.warning::before {
+            border-color: rgba(255,71,87,0.6);
+            box-shadow: 0 0 14px rgba(255,71,87,0.5);
+            animation: forcefieldOrbit 1s linear infinite;
+        }
+
+        #forcefield.warning::after {
+            border-top-color: rgba(255,71,87,0.9);
+            border-right-color: rgba(255,150,87,0.5);
+            box-shadow: 0 0 18px rgba(255,71,87,0.5);
+            animation: forcefieldOrbit 0.4s linear infinite reverse;
+        }
+
+        @keyframes forcefieldPulseWarning {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow:
+                    0 0 14px #ff4757,
+                    0 0 35px rgba(255,71,87,0.7),
+                    0 0 75px rgba(255,71,87,0.35),
+                    inset 0 0 25px rgba(255,71,87,0.3);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.15);
+                box-shadow:
+                    0 0 25px #ff4757,
+                    0 0 60px rgba(255,71,87,0.9),
+                    0 0 110px rgba(255,71,87,0.5),
+                    inset 0 0 40px rgba(255,71,87,0.45);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes forcefieldShake {
+            0%   { translate: 0px 0px; }
+            25%  { translate: 1px -1px; }
+            50%  { translate: -1px 1px; }
+            75%  { translate: 1px 1px; }
+            100% { translate: 0px 0px; }
+        }
+
+        .points-milestone {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #66fcf1;
+            text-shadow: 0 0 20px #66fcf1, 0 0 40px #66fcf1;
+            z-index: 2000;
+            pointer-events: none;
+            animation: milestoneFloat 2.5s ease-out forwards;
+        }
+
+        @keyframes milestoneFloat {
+            0%   { opacity: 0; transform: translateX(-50%) translateY(0);    }
+            20%  { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+            80%  { opacity: 1; transform: translateX(-50%) translateY(-40px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
         }
 
         .power-up-countdown {
@@ -527,6 +926,9 @@
     <!-- Game title -->
     <div id="gameTitle" class="game-title">DODGE THE ROCKETS</div>
     
+    <!-- Points display (top-left) -->
+    <div id="pointsDisplay" class="points-display" style="display: none;">⭐ <span id="pointsScore">0</span></div>
+
     <!-- Score display -->
     <div id="scoreDisplay" class="score-display" style="display: none;">
         <div>Time: <span id="timeScore">0</span>s</div>
@@ -548,11 +950,56 @@
     </div>
 
     <canvas id="mouseTrailCanvas"></canvas>
+    <div id="forcefield"></div>
 
     <!-- Home Screen -->
     <div id="homeScreen" class="home-screen">
-        <div class="home-title">DODGE THE ROCKETS</div>
+        <div class="home-title">🚀 DODGE THE ROCKETS</div>
+        <div class="home-subtitle">Survive the barrage. Dodge everything.</div>
+
         <button id="startBtn" class="play-button">🚀 START MISSION 🚀</button>
+        <button id="levelsBtn" class="levels-button">📋 LEVELS</button>
+
+        <div class="difficulty-section">
+            <div class="difficulty-label">SELECT DIFFICULTY</div>
+            <div class="difficulty-buttons">
+                <button class="diff-btn diff-easy" id="diffEasy">
+                    <span class="diff-icon">🟢</span>
+                    <span class="diff-name">EASY</span>
+                    <span class="diff-desc">Slow rockets</span>
+                </button>
+                <button class="diff-btn diff-medium diff-selected" id="diffMedium">
+                    <span class="diff-icon">🟡</span>
+                    <span class="diff-name">MEDIUM</span>
+                    <span class="diff-desc">Normal speed</span>
+                </button>
+                <button class="diff-btn diff-hard" id="diffHard">
+                    <span class="diff-icon">🔴</span>
+                    <span class="diff-name">HARD</span>
+                    <span class="diff-desc">Fast rockets</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="home-instructions">
+            <div class="instruction-item">🖱️ Move your cursor to dodge rockets</div>
+            <div class="instruction-item">🍎 Collect items for bonus points</div>
+            <div class="instruction-item">⭐ Grab power-ups for invincibility</div>
+            <div class="instruction-item">⚠️ Stay inside the arena borders</div>
+        </div>
+    </div>
+
+    <!-- Levels Screen -->
+    <div id="levelsScreen" class="levels-screen">
+        <div class="levels-title">📋 MISSION SELECT</div>
+        <div class="levels-subtitle">Choose an attempted mission to replay</div>
+        <div class="levels-diff-tabs">
+            <button class="levels-diff-tab easy"   data-diff="easy">🟢 EASY</button>
+            <button class="levels-diff-tab medium" data-diff="medium">🟡 MEDIUM</button>
+            <button class="levels-diff-tab hard"   data-diff="hard">🔴 HARD</button>
+        </div>
+        <div id="levelsGrid" class="levels-grid"></div>
+        <button id="levelsBackBtn" class="levels-back-btn">← BACK</button>
     </div>
 
     <!-- Game Over Screen -->
@@ -597,6 +1044,8 @@
             const timeScore = document.getElementById('timeScore');
             const rocketScore = document.getElementById('rocketScore');
             const collectibleScore = document.getElementById('collectibleScore');
+            const pointsScore = document.getElementById('pointsScore');
+            const pointsDisplay = document.getElementById('pointsDisplay');
             const finalTime = document.getElementById('finalTime');
             const finalRockets = document.getElementById('finalRockets');
             const finalCollectibles = document.getElementById('finalCollectibles');
@@ -606,6 +1055,7 @@
             const countdownNumber = document.getElementById('countdownNumber');
             const gamePausedIndicator = document.getElementById('gamePausedIndicator');
             const explosionSound = document.getElementById('explosionSound');
+            const forcefield = document.getElementById('forcefield');
 
             let rocketLauncher;
             let launchInterval;
@@ -615,16 +1065,39 @@
             let powerUpCountdownTimer;
             let rocketsDodged = 0;
             let collectiblesCollected = 0;
+            let totalPoints = 0;
+            let lastPointSecond = 0;
+            let nextMilestone = 50000;
             let gameActive = false;
             let gamePaused = false;
             let isInvincible = false;
             let invincibilityTimer = null;
+            let invincibilityTimeLeft = 0;
             let mouseOutOfBounds = false;
             let pausedTime = 0;
             let pauseStartTime = 0;
             let currentMission = 1;
             let missionDuration = 60; // Start with 60 seconds
             let missionStartTime = 0;
+            let selectedDifficulty = 'medium'; // easy | medium | hard
+            let highestUnlockedLevel = parseInt(localStorage.getItem('dtr_highestUnlockedLevel') || '0');
+
+            function getAttempted(diff) {
+                return parseInt(localStorage.getItem('dtr_highestAttemptedLevel_' + diff) || '0');
+            }
+            function saveAttempted(diff, val) {
+                localStorage.setItem('dtr_highestAttemptedLevel_' + diff, val);
+            }
+
+            // Difficulty button wiring
+            const diffButtons = { easy: document.getElementById('diffEasy'), medium: document.getElementById('diffMedium'), hard: document.getElementById('diffHard') };
+            Object.entries(diffButtons).forEach(([diff, btn]) => {
+                btn.addEventListener('click', () => {
+                    selectedDifficulty = diff;
+                    Object.values(diffButtons).forEach(b => b.classList.remove('diff-selected'));
+                    btn.classList.add('diff-selected');
+                });
+            });
             
             const themes = [
                 { name: "Space Mission", primary: "#66fcf1", secondary: "#45a29e", bg: "radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 25%, #0f0f23 100%)", accent: "#4ecdc4" },
@@ -642,7 +1115,6 @@
                 document.documentElement.style.setProperty('--primary-color', theme.primary);
                 document.documentElement.style.setProperty('--secondary-color', theme.secondary);
                 document.documentElement.style.setProperty('--accent-color', theme.accent);
-                document.body.style.background = theme.bg;
                 
                 // Update UI elements
                 const elements = document.querySelectorAll('.game-title, .home-title, .score-display, .play-button');
@@ -661,20 +1133,62 @@
             function createExplosionSound() {
                 try {
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 0.5);
-                    
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.5);
+                    const now = audioContext.currentTime;
+
+                    // Layer 1: deep bass thud — the body of the crash
+                    const thud = audioContext.createOscillator();
+                    const thudGain = audioContext.createGain();
+                    thud.type = 'sine';
+                    thud.frequency.setValueAtTime(120, now);
+                    thud.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+                    thudGain.gain.setValueAtTime(0.8, now);
+                    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+                    thud.connect(thudGain);
+                    thudGain.connect(audioContext.destination);
+                    thud.start(now);
+                    thud.stop(now + 0.5);
+
+                    // Layer 2: mid crunch noise burst — debris/metal scraping
+                    const crunchSize = Math.floor(audioContext.sampleRate * 0.6);
+                    const crunchBuf  = audioContext.createBuffer(1, crunchSize, audioContext.sampleRate);
+                    const crunchData = crunchBuf.getChannelData(0);
+                    for (let i = 0; i < crunchSize; i++) {
+                        // Filtered noise — emphasise low-mid crunch character
+                        crunchData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / crunchSize, 0.6);
+                    }
+                    const crunch     = audioContext.createBufferSource();
+                    crunch.buffer    = crunchBuf;
+                    const crunchFilter = audioContext.createBiquadFilter();
+                    crunchFilter.type = 'bandpass';
+                    crunchFilter.frequency.value = 600;
+                    crunchFilter.Q.value = 0.8;
+                    const crunchGain = audioContext.createGain();
+                    crunchGain.gain.setValueAtTime(1.0, now);
+                    crunchGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+                    crunch.connect(crunchFilter);
+                    crunchFilter.connect(crunchGain);
+                    crunchGain.connect(audioContext.destination);
+                    crunch.start(now);
+
+                    // Layer 3: high-frequency glass/debris scatter — short tail
+                    const glassSize = Math.floor(audioContext.sampleRate * 0.25);
+                    const glassBuf  = audioContext.createBuffer(1, glassSize, audioContext.sampleRate);
+                    const glassData = glassBuf.getChannelData(0);
+                    for (let i = 0; i < glassSize; i++) {
+                        glassData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / glassSize, 1.5);
+                    }
+                    const glass      = audioContext.createBufferSource();
+                    glass.buffer     = glassBuf;
+                    const glassFilter = audioContext.createBiquadFilter();
+                    glassFilter.type = 'highpass';
+                    glassFilter.frequency.value = 3000;
+                    const glassGain  = audioContext.createGain();
+                    glassGain.gain.setValueAtTime(0.4, now + 0.05);
+                    glassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                    glass.connect(glassFilter);
+                    glassFilter.connect(glassGain);
+                    glassGain.connect(audioContext.destination);
+                    glass.start(now + 0.05);
                 } catch (e) {
                     console.log('Audio not supported');
                 }
@@ -684,11 +1198,37 @@
                 if (!gameActive || gamePaused) return;
                 const currentTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
                 timeScore.textContent = currentTime;
-                
+
+                // Award 200 points every second
+                if (currentTime > lastPointSecond) {
+                    lastPointSecond = currentTime;
+                    addPoints(100);
+                }
+
                 // Check for mission completion
                 if (currentTime >= missionDuration) {
                     missionCompleted();
                 }
+            }
+
+            function addPoints(amount) {
+                totalPoints += amount;
+                pointsScore.textContent = totalPoints.toLocaleString();
+
+                // Check 50k milestone for free invincibility
+                if (totalPoints >= nextMilestone) {
+                    nextMilestone += 50000;
+                    activateInvincibility(5);
+                    showMilestoneNotice();
+                }
+            }
+
+            function showMilestoneNotice() {
+                const notice = document.createElement('div');
+                notice.className = 'points-milestone';
+                notice.textContent = '🛡️ 50,000 PTS — 5s SHIELD!';
+                document.body.appendChild(notice);
+                setTimeout(() => notice.remove(), 2500);
             }
 
             function spawnPowerUp() {
@@ -738,22 +1278,32 @@
                 });
             }
 
-            function activateInvincibility() {
+            function activateInvincibility(duration = 5) {
+                // Stack time if already invincible, otherwise start fresh
+                invincibilityTimeLeft = isInvincible ? invincibilityTimeLeft + duration : duration;
                 isInvincible = true;
                 powerUpStatus.style.display = 'block';
-                let timeLeft = 5;
+                forcefield.classList.add('active');
+                forcefield.classList.remove('warning');
+                powerUpTimer.textContent = invincibilityTimeLeft;
                 
                 if (invincibilityTimer) {
                     clearInterval(invincibilityTimer);
                 }
                 
                 invincibilityTimer = setInterval(() => {
-                    timeLeft--;
-                    powerUpTimer.textContent = timeLeft;
-                    
-                    if (timeLeft <= 0) {
+                    invincibilityTimeLeft--;
+                    powerUpTimer.textContent = invincibilityTimeLeft;
+
+                    if (invincibilityTimeLeft <= 2) {
+                        forcefield.classList.add('warning');
+                    }
+
+                    if (invincibilityTimeLeft <= 0) {
                         isInvincible = false;
+                        invincibilityTimeLeft = 0;
                         powerUpStatus.style.display = 'none';
+                        forcefield.classList.remove('active', 'warning');
                         clearInterval(invincibilityTimer);
                     }
                 }, 1000);
@@ -768,8 +1318,15 @@
                     clearInterval(invincibilityTimer);
                 }
                 
-                // Create confetti
+                // Create confetti and play celebration sound
                 createConfetti();
+                createCelebrationSound();
+
+                // Unlock this mission level for replay
+                if (currentMission > highestUnlockedLevel) {
+                    highestUnlockedLevel = currentMission;
+                    localStorage.setItem('dtr_highestUnlockedLevel', highestUnlockedLevel);
+                }
                 
                 const survivalTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
                 
@@ -792,6 +1349,7 @@
                 nextMissionTheme.textContent = themes[currentMission % themes.length].name;
                 
                 scoreDisplay.style.display = 'none';
+                pointsDisplay.style.display = 'none';
                 powerUpStatus.style.display = 'none';
                 gamePausedIndicator.style.display = 'none';
                 powerUpCountdown.style.display = 'none';
@@ -805,6 +1363,64 @@
                 document.removeEventListener('mousemove', checkMouseBounds);
             }
             
+            function createCelebrationSound() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+                    // Multiple popping bursts to mimic confetti explosions
+                    const burstTimes = [0, 0.15, 0.35, 0.6, 0.9, 1.3];
+                    const notes = [523, 659, 784, 1047, 880, 1175]; // C5, E5, G5, C6, A5, D6
+
+                    burstTimes.forEach((time, i) => {
+                        // Short pop noise
+                        const bufferSize = ctx.sampleRate * 0.08;
+                        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let j = 0; j < bufferSize; j++) {
+                            data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufferSize, 3);
+                        }
+                        const noise = ctx.createBufferSource();
+                        noise.buffer = buffer;
+                        const noiseGain = ctx.createGain();
+                        noiseGain.gain.setValueAtTime(0.4, ctx.currentTime + time);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time + 0.08);
+                        noise.connect(noiseGain);
+                        noiseGain.connect(ctx.destination);
+                        noise.start(ctx.currentTime + time);
+
+                        // Bright tone ping on each burst
+                        const osc = ctx.createOscillator();
+                        const oscGain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(notes[i], ctx.currentTime + time);
+                        osc.frequency.exponentialRampToValueAtTime(notes[i] * 1.5, ctx.currentTime + time + 0.15);
+                        oscGain.gain.setValueAtTime(0.3, ctx.currentTime + time);
+                        oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time + 0.25);
+                        osc.connect(oscGain);
+                        oscGain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + time);
+                        osc.stop(ctx.currentTime + time + 0.25);
+                    });
+
+                    // Rising triumphant chord sweep at the end
+                    [523, 659, 784, 1047].forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0, ctx.currentTime + 1.5 + i * 0.08);
+                        gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 1.6 + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + 1.5 + i * 0.08);
+                        osc.stop(ctx.currentTime + 2.5);
+                    });
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
             function createConfetti() {
                 const colors = ['#ffd93d', '#ff6b6b', '#4ecdc4', '#45a29e', '#66fcf1', '#a8e6cf'];
                 for (let i = 0; i < 100; i++) {
@@ -862,11 +1478,21 @@
             }
 
             function startGame() {
+                // Track attempted missions per difficulty for the levels screen
+                const prev = getAttempted(selectedDifficulty);
+                if (currentMission > prev) {
+                    saveAttempted(selectedDifficulty, currentMission);
+                }
                 gameActive = true;
                 gamePaused = false;
                 rocketsDodged = 0;
                 collectiblesCollected = 0;
+                totalPoints = 0;
+                lastPointSecond = 0;
+                nextMilestone = 50000;
+                pointsScore.textContent = '0';
                 isInvincible = false;
+                invincibilityTimeLeft = 0;
                 mouseOutOfBounds = false;
                 pausedTime = 0;
                 pauseStartTime = 0;
@@ -878,15 +1504,20 @@
                 
                 homeScreen.style.display = 'none';
                 scoreDisplay.style.display = 'block';
+                pointsDisplay.style.display = 'block';
                 gamePausedIndicator.style.display = 'none';
                 powerUpStatus.style.display = 'none';
                 
                 // Update mission info
                 document.getElementById('gameTitle').textContent = `${getCurrentTheme().name.toUpperCase()} - ${missionDuration}s`;
                 
+                // Difficulty speed multipliers: easy = slower, hard = faster
+                const speedMultipliers = { easy: 1.8, medium: 1.0, hard: 0.5 };
+                window.rocketSpeedMultiplier = speedMultipliers[selectedDifficulty] || 1.0;
+
                 rocketLauncher = new RocketLauncher(
                     () => {
-                        if (!isInvincible) {
+                        if (gameActive && !isInvincible) {
                             gameOver();
                         }
                     }, 
@@ -900,13 +1531,16 @@
                         if (!gamePaused && gameActive) {
                             collectiblesCollected++;
                             collectibleScore.textContent = collectiblesCollected;
+                            addPoints(2500);
                         }
                     }
                 );
                 
-                // Start with shorter intervals and faster speed-up for more rockets
-                let interval = 600; // Reduced from 800
-                const minInterval = 150; // Reduced from 200
+                // Hard difficulty starts with a shorter spawn interval
+                const isHard = selectedDifficulty === 'hard';
+                const isEasy = selectedDifficulty === 'easy';
+                let interval = isHard ? 450 : isEasy ? 900 : 600;
+                const minInterval = isHard ? 100 : isEasy ? 300 : 150;
                 const speedUpRate = 0.96; // Faster speed-up from 0.98
                 
                 function launchObjects() {
@@ -945,8 +1579,7 @@
                 if (invincibilityTimer) {
                     clearInterval(invincibilityTimer);
                 }
-                
-                // Play explosion sound
+                forcefield.classList.remove('active', 'warning');
                 createExplosionSound();
                 
                 const survivalTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
@@ -955,13 +1588,17 @@
                 finalCollectibles.textContent = collectiblesCollected;
                 
                 scoreDisplay.style.display = 'none';
+                pointsDisplay.style.display = 'none';
                 powerUpStatus.style.display = 'none';
                 gamePausedIndicator.style.display = 'none';
                 powerUpCountdown.style.display = 'none';
                 gameOverScreen.style.display = 'flex';
                 
-                // Remove power-ups
+                // Remove power-ups and all rockets immediately
                 document.querySelectorAll('.power-up').forEach(p => p.remove());
+                if (rocketLauncher) {
+                    rocketLauncher.clearAllObjects();
+                }
                 document.removeEventListener('mousemove', checkMouseBounds);
             }
 
@@ -980,6 +1617,7 @@
                 gameActive = false;
                 gamePaused = false;
                 isInvincible = false;
+                invincibilityTimeLeft = 0;
                 mouseOutOfBounds = false;
                 pausedTime = 0;
                 currentMission = 1;
@@ -989,6 +1627,7 @@
                 if (invincibilityTimer) {
                     clearInterval(invincibilityTimer);
                 }
+                forcefield.classList.remove('active', 'warning');
                 
                 // Reset theme
                 applyTheme(getCurrentTheme());
@@ -1011,24 +1650,92 @@
                 timeScore.textContent = '0';
                 rocketScore.textContent = '0';
                 collectibleScore.textContent = '0';
+                pointsScore.textContent = '0';
                 rocketsDodged = 0;
                 collectiblesCollected = 0;
+                totalPoints = 0;
+                lastPointSecond = 0;
+                nextMilestone = 50000;
+                forcefield.classList.remove('active', 'warning');
                 
                 document.removeEventListener('mousemove', checkMouseBounds);
             }
 
+            let levelsBrowseDiff = selectedDifficulty;
+
+            function renderLevelsGrid() {
+                const levelsScreen = document.getElementById('levelsScreen');
+                const grid = document.getElementById('levelsGrid');
+                grid.innerHTML = '';
+                const attempted = getAttempted(levelsBrowseDiff);
+                const themeIcons = ['🌌','🔥','🌊','🌿','🌅'];
+
+                themes.forEach((theme, i) => {
+                    const missionNum = i + 1;
+                    const unlocked = missionNum <= attempted;
+                    const card = document.createElement('div');
+                    card.className = 'level-card ' + (unlocked ? 'unlocked' : 'locked');
+                    card.innerHTML = `
+                        <div class="level-card-icon">${unlocked ? themeIcons[i] : '🔒'}</div>
+                        <div class="level-card-number">LVL ${missionNum}</div>
+                        <div class="level-card-name">${theme.name.toUpperCase()}</div>
+                        <div class="level-card-duration">${missionNum * 60}s</div>
+                    `;
+                    if (unlocked) {
+                        card.addEventListener('click', () => {
+                            levelsScreen.style.display = 'none';
+                            selectedDifficulty = levelsBrowseDiff;
+                            Object.values(diffButtons).forEach(b => b.classList.remove('diff-selected'));
+                            diffButtons[selectedDifficulty].classList.add('diff-selected');
+                            currentMission = missionNum;
+                            missionDuration = missionNum * 60;
+                            timeScore.textContent = '0';
+                            rocketScore.textContent = '0';
+                            collectibleScore.textContent = '0';
+                            clearTrail();
+                            startGame();
+                        });
+                    }
+                    grid.appendChild(card);
+                });
+            }
+
+            function showLevelsScreen() {
+                levelsBrowseDiff = selectedDifficulty;
+                // Sync tab active state
+                document.querySelectorAll('.levels-diff-tab').forEach(t => {
+                    t.classList.toggle('active', t.dataset.diff === levelsBrowseDiff);
+                });
+                renderLevelsGrid();
+                homeScreen.style.display = 'none';
+                document.getElementById('levelsScreen').style.display = 'flex';
+            }
+
+            document.querySelectorAll('.levels-diff-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    levelsBrowseDiff = tab.dataset.diff;
+                    document.querySelectorAll('.levels-diff-tab').forEach(t => t.classList.toggle('active', t === tab));
+                    renderLevelsGrid();
+                });
+            });
+
             startBtn.addEventListener('click', startGame);
             playAgainBtn.addEventListener('click', resetGame);
             document.getElementById('nextMissionBtn').addEventListener('click', startNextMission);
+            document.getElementById('levelsBtn').addEventListener('click', showLevelsScreen);
+            document.getElementById('levelsBackBtn').addEventListener('click', () => {
+                document.getElementById('levelsScreen').style.display = 'none';
+                homeScreen.style.display = 'flex';
+            });
         };
     </script>
 
     <script>
-        // Mouse trail logic with boundary constraints
+        // Mouse trail — particle dot system
         const canvas = document.getElementById('mouseTrailCanvas');
         const ctx = canvas.getContext('2d');
 
-        let width = window.innerWidth - 108; // Account for walls
+        let width = window.innerWidth - 108;
         let height = window.innerHeight - 108;
         canvas.width = width;
         canvas.height = height;
@@ -1042,16 +1749,16 @@
 
         let mouseX = 0;
         let mouseY = 0;
-        let lastX = 0;
-        let lastY = 0;
-        let isFirstMove = true;
         let constrainedX = 0;
         let constrainedY = 0;
 
+        // Each particle: { x, y, alpha, radius }
+        const particles = [];
+        const MAX_PARTICLES = 60;
+
         window.addEventListener('mousemove', (e) => {
-            // Constrain mouse to game area with updated bounds
             const gameRect = {
-                left: 58, // Updated to match checkMouseBounds
+                left: 58,
                 top: 58,
                 right: window.innerWidth - 58,
                 bottom: window.innerHeight - 58
@@ -1059,44 +1766,53 @@
 
             constrainedX = Math.max(gameRect.left, Math.min(gameRect.right, e.clientX));
             constrainedY = Math.max(gameRect.top, Math.min(gameRect.bottom, e.clientY));
-            
-            mouseX = constrainedX - 58; // Updated offset
+
+            mouseX = constrainedX - 58;
             mouseY = constrainedY - 58;
-            
-            // Store current mouse position globally for collision detection
+
             window.currentMousePosition = { x: mouseX, y: mouseY };
+
+            // Move forcefield with cursor
+            forcefield.style.left = constrainedX + 'px';
+            forcefield.style.top  = constrainedY + 'px';
+
+            // Spawn a new trail particle
+            particles.push({ x: mouseX, y: mouseY, alpha: 0.85, radius: 5 });
+            if (particles.length > MAX_PARTICLES) particles.shift();
         });
 
         function drawTrail() {
-            ctx.strokeStyle = '#66fcf1';
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.shadowColor = '#66fcf1';
-            ctx.shadowBlur = 10;
+            ctx.clearRect(0, 0, width, height);
 
-            ctx.beginPath();
-            if (isFirstMove) {
-                lastX = mouseX;
-                lastY = mouseY;
-                isFirstMove = false;
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                // Fade and shrink
+                p.alpha -= 0.032;
+                p.radius -= 0.08;
+                if (p.alpha <= 0 || p.radius <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                // Colour shifts from bright cyan → dim blue as it fades
+                const r = Math.round(102 * (p.alpha / 0.85));
+                const g = Math.round(252 * (p.alpha / 0.85));
+                const b = 241;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+                ctx.shadowColor = `rgba(102,252,241,${p.alpha * 0.6})`;
+                ctx.shadowBlur = 8;
+                ctx.fill();
             }
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(mouseX, mouseY);
-            ctx.stroke();
-
-            lastX = mouseX;
-            lastY = mouseY;
-
-            // Fade out old lines by drawing a semi-transparent rectangle over the canvas
-            ctx.fillStyle = 'rgba(26, 26, 46, 0.1)';
-            ctx.fillRect(0, 0, width, height);
 
             requestAnimationFrame(drawTrail);
         }
 
         function clearTrail() {
+            particles.length = 0;
             ctx.clearRect(0, 0, width, height);
-            isFirstMove = true;
         }
 
         drawTrail();

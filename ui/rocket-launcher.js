@@ -8,28 +8,34 @@ class Rocket {
         this.element.style.color = '#ff6b6b';
         this.element.classList.add('rocket-type-1');
         
-        // Faster speed for rockets (3-6 seconds instead of 8-10)
-        const duration = 3 + Math.random() * 3;
+        // Speed scaled by difficulty multiplier (easy=slow, hard=fast)
+        const speedMult = window.rocketSpeedMultiplier || 1.0;
+        const duration = (3 + Math.random() * 3) * speedMult;
         this.element.style.setProperty('--duration', `${duration}s`);
 
-        // Spawn with slight bias towards left side, middle, and right side zones
+        // Spawn logic: equal 25% split — cursor-targeted, left edge, right edge, fully random
         const wallOffset = 58;
         const rocketSize = 50;
+        const halfRocket = Math.floor(rocketSize / 2);
         const playAreaWidth = window.innerWidth - 2 * wallOffset;
         const sideZone = Math.floor(playAreaWidth * 0.2);
-        const middleZone = Math.floor(playAreaWidth * 0.2);
-        const middleStart = wallOffset + Math.floor((playAreaWidth - middleZone) / 2);
         let randomLeft;
         const roll = Math.random();
-        if (roll < 0.2) {
-            // Left side zone
-            randomLeft = wallOffset + Math.floor(Math.random() * sideZone);
-        } else if (roll < 0.4) {
-            // Right side zone
-            randomLeft = wallOffset + playAreaWidth - rocketSize - Math.floor(Math.random() * sideZone);
-        } else if (roll < 0.6) {
-            // Middle zone
-            randomLeft = middleStart + Math.floor(Math.random() * (middleZone - rocketSize));
+        if (roll < 0.25) {
+            // Target current cursor X — counters camping at any position
+            const cursorX = window.currentMousePosition
+                ? window.currentMousePosition.x + wallOffset
+                : wallOffset + playAreaWidth / 2;
+            const jitter = Math.floor((Math.random() - 0.5) * 20);
+            randomLeft = Math.max(wallOffset - halfRocket,
+                Math.min(window.innerWidth - wallOffset - halfRocket,
+                    cursorX - halfRocket + jitter));
+        } else if (roll < 0.5) {
+            // Left edge zone
+            randomLeft = wallOffset - halfRocket + Math.floor(Math.random() * sideZone);
+        } else if (roll < 0.75) {
+            // Right edge zone
+            randomLeft = window.innerWidth - wallOffset - halfRocket - Math.floor(Math.random() * sideZone);
         } else {
             // Fully random across play area
             randomLeft = wallOffset + Math.floor(Math.random() * (playAreaWidth - rocketSize));
@@ -48,14 +54,10 @@ class Rocket {
             this.element.remove();
         });
 
-        // Game over on collision with rocket
-        this.element.addEventListener('mouseenter', () => {
-            if (onExplode) {
-                onExplode();
-            }
-        });
+        // Game over on collision with rocket — interval only, mouseenter is too inaccurate
+        // for rotated emoji elements (fires on full transparent bounding box)
 
-        // Enhanced collision detection for rockets
+        // Accurate collision detection using a tight circle around the rocket center
         this.checkCollision = () => {
             if (!this.element.parentNode) return;
             
@@ -64,20 +66,22 @@ class Rocket {
             if (!mouseTrailCanvas) return;
             
             const canvasRect = mouseTrailCanvas.getBoundingClientRect();
-            
-            // Get current mouse position from the canvas tracking
             const mousePos = window.currentMousePosition || { x: 0, y: 0 };
             
-            const rocketCenterX = rect.left + rect.width / 2 - canvasRect.left;
-            const rocketCenterY = rect.top + rect.height / 2 - canvasRect.top;
+            // Convert canvas-relative mouse coords back to screen coords
+            const screenMouseX = mousePos.x + canvasRect.left;
+            const screenMouseY = mousePos.y + canvasRect.top;
+
+            const rocketCenterX = rect.left + rect.width / 2;
+            const rocketCenterY = rect.top + rect.height / 2;
             
             const distance = Math.sqrt(
-                Math.pow(mousePos.x - rocketCenterX, 2) + 
-                Math.pow(mousePos.y - rocketCenterY, 2)
+                Math.pow(screenMouseX - rocketCenterX, 2) + 
+                Math.pow(screenMouseY - rocketCenterY, 2)
             );
             
-            // Collision threshold for rockets
-            if (distance < 30 && onExplode) {
+            // 26px — covers the rocket body without firing on transparent corners
+            if (distance < 26 && onExplode) {
                 onExplode();
             }
         };
