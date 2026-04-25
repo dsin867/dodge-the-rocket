@@ -1233,6 +1233,10 @@
 
             function spawnPowerUp() {
                 if (!gameActive) return;
+
+                // Don't spawn if less than 15s left in the mission — no time to use it
+                const currentTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
+                if (missionDuration - currentTime < 15) return;
                 
                 const powerUp = document.createElement('div');
                 powerUp.className = 'power-up';
@@ -1535,6 +1539,7 @@
                         }
                     }
                 );
+                window.rocketLauncherRef = rocketLauncher;
                 
                 // Hard difficulty starts with a shorter spawn interval
                 const isHard = selectedDifficulty === 'hard';
@@ -1770,7 +1775,13 @@
             mouseX = constrainedX - 58;
             mouseY = constrainedY - 58;
 
+            window.previousMousePosition = window.currentMousePosition || { x: mouseX, y: mouseY };
             window.currentMousePosition = { x: mouseX, y: mouseY };
+
+            // Check rocket collisions on every mouse move — prevents fast-cursor tunnelling
+            if (window.rocketLauncherRef) {
+                window.rocketLauncherRef.checkAllCollisions();
+            }
 
             // Move forcefield with cursor
             forcefield.style.left = constrainedX + 'px';

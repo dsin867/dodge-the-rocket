@@ -54,35 +54,51 @@ class Rocket {
             this.element.remove();
         });
 
-        // Game over on collision with rocket — interval only, mouseenter is too inaccurate
-        // for rotated emoji elements (fires on full transparent bounding box)
-
-        // Accurate collision detection using a tight circle around the rocket center
+        // Swept collision detection — checks the line segment the cursor travelled
+        // between frames against the rocket's circle, preventing fast-cursor tunnelling.
         this.checkCollision = () => {
             if (!this.element.parentNode) return;
-            
+
             const rect = this.element.getBoundingClientRect();
             const mouseTrailCanvas = document.getElementById('mouseTrailCanvas');
             if (!mouseTrailCanvas) return;
-            
-            const canvasRect = mouseTrailCanvas.getBoundingClientRect();
-            const mousePos = window.currentMousePosition || { x: 0, y: 0 };
-            
-            // Convert canvas-relative mouse coords back to screen coords
-            const screenMouseX = mousePos.x + canvasRect.left;
-            const screenMouseY = mousePos.y + canvasRect.top;
 
-            const rocketCenterX = rect.left + rect.width / 2;
-            const rocketCenterY = rect.top + rect.height / 2;
-            
-            const distance = Math.sqrt(
-                Math.pow(screenMouseX - rocketCenterX, 2) + 
-                Math.pow(screenMouseY - rocketCenterY, 2)
-            );
-            
-            // 26px — covers the rocket body without firing on transparent corners
-            if (distance < 26 && onExplode) {
-                onExplode();
+            const canvasRect = mouseTrailCanvas.getBoundingClientRect();
+            const cur  = window.currentMousePosition  || { x: 0, y: 0 };
+            const prev = window.previousMousePosition || cur;
+
+            // Convert canvas-relative coords to screen coords
+            const x1 = prev.x + canvasRect.left;
+            const y1 = prev.y + canvasRect.top;
+            const x2 = cur.x  + canvasRect.left;
+            const y2 = cur.y  + canvasRect.top;
+
+            const cx = rect.left + rect.width  / 2;
+            const cy = rect.top  + rect.height / 2;
+            const radius = 26;
+
+            // Vector from segment start to rocket center
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const fx = x1 - cx;
+            const fy = y1 - cy;
+
+            const a = dx * dx + dy * dy;
+            const b = 2 * (fx * dx + fy * dy);
+            const c = fx * fx + fy * fy - radius * radius;
+
+            // Point check when cursor hasn't moved (a ≈ 0)
+            if (a < 0.0001) {
+                if (c <= 0 && onExplode) onExplode();
+                return;
+            }
+
+            const discriminant = b * b - 4 * a * c;
+            if (discriminant >= 0) {
+                const t = (-b - Math.sqrt(discriminant)) / (2 * a);
+                if (t >= 0 && t <= 1 && onExplode) {
+                    onExplode();
+                }
             }
         };
 
@@ -178,6 +194,13 @@ class RocketLauncher {
         this.onCollectibleCollected = onCollectibleCollected;
         this.launchedRockets = [];
         this.launchedCollectibles = [];
+    }
+
+    checkAllCollisions() {
+        this.cleanupOldObjects();
+        for (const rocket of this.launchedRockets) {
+            rocket.checkCollision();
+        }
     }
 
     launchRocket() {
