@@ -4,8 +4,17 @@ class Rocket {
         this.element.className = 'rocket';
         
         // Only rocket emojis - facing upward with increased speed
-        this.element.textContent = '🚀';
-        this.element.style.color = '#ff6b6b';
+        // Pick a random rocket image
+        const _rocketPool = [
+            'assets/images/rockets/spaceRockets_001.png',
+            'assets/images/rockets/spaceRockets_002.png',
+            'assets/images/rockets/spaceRockets_003.png',
+            'assets/images/rockets/spaceRockets_004.png',
+        ];
+        const _rImg = document.createElement('img');
+        _rImg.src = _rocketPool[Math.floor(Math.random() * _rocketPool.length)];
+        _rImg.style.cssText = 'width:50px;height:50px;object-fit:contain;display:block;pointer-events:none;';
+        this.element.appendChild(_rImg);
         this.element.classList.add('rocket-type-1');
         
         // Speed scaled by difficulty multiplier (easy=slow, hard=fast)

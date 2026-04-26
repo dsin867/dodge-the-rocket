@@ -146,7 +146,7 @@
         #sunHealthBar {
             display: none;
             position: fixed;
-            top: 20px;
+            top: 110px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 500;
@@ -533,30 +533,36 @@
             position: fixed;
             bottom: -100px;
             left: 50%;
-            font-size: 50px;
+            width: 50px;
+            height: 50px;
             z-index: 1000;
-            filter: drop-shadow(0 0 10px currentColor);
-            transform: rotate(315deg); /* Adjust rotation for perfect upward pointing */
+            filter: drop-shadow(0 0 10px rgba(255,120,50,0.9));
+            transform: rotate(0deg);
+        }
+
+        .rocket img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
         }
 
         .rocket-type-1 {
             animation: launch1 var(--duration) linear forwards;
-            transform: rotate(315deg); /* Adjust for perfect upward pointing */
         }
 
         .rocket-type-2 {
             animation: launch1 var(--duration) linear forwards;
-            transform: rotate(315deg); /* Adjust for perfect upward pointing */
         }
 
         .rocket-type-3 {
             animation: launch1 var(--duration) linear forwards;
-            transform: rotate(315deg); /* Adjust for perfect upward pointing */
         }
 
         @keyframes launch1 {
-            0% { bottom: -100px; transform: rotate(315deg) translateX(0); }
-            100% { bottom: 110%; transform: rotate(315deg) translateX(0); }
+            0% { bottom: -100px; }
+            100% { bottom: 110%; }
         }
 
         .gameOverScreen {
@@ -713,10 +719,19 @@
 
         .boss-rocket {
             position: fixed;
-            font-size: 36px;
+            width: 42px;
+            height: 42px;
             z-index: 1050;
             pointer-events: none;
             filter: drop-shadow(0 0 8px #ffea00) drop-shadow(0 0 18px #ff6d00);
+        }
+
+        .boss-rocket img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
         }
 
         /* ── Sun Boss (Sunset Mission) ─────────────────────────────────── */
@@ -751,7 +766,7 @@
         /* ── Danger UV beams (rotating, health-draining) ─────────────── */
         .sun-danger-beam {
             position: fixed;
-            width: 80px;
+            width: 48px;
             z-index: 1047;
             pointer-events: none;
             transform-origin: top center;
@@ -1348,6 +1363,7 @@
             <button id="prevGalaxyBtn" class="galaxy-nav-btn" style="display:none">← PREV GALAXY</button>
             <button id="nextMissionBtn" class="next-mission-button">🚀 START NEXT MISSION</button>
             <button id="nextGalaxyBtn" class="galaxy-nav-btn" style="display:none">🌌 NEXT GALAXY →</button>
+            <button id="successMenuBtn" class="menu-button" style="display:none">🏠 MAIN MENU</button>
         </div>
     </div>
 
@@ -1744,6 +1760,7 @@
                     nextMissionBtnEl.style.display = 'none';
                     nextGalaxyBtn.style.display = hasNextGalaxy ? 'block' : 'none';
                     prevGalaxyBtn.style.display = 'none';
+                    document.getElementById('successMenuBtn').style.display = hasNextGalaxy ? 'none' : 'block';
                 } else {
                     // Mid-galaxy — show regular next mission info
                     nextMissionInfo.style.display = 'block';
@@ -1751,6 +1768,7 @@
                     nextMissionBtnEl.style.display = 'block';
                     nextGalaxyBtn.style.display = 'none';
                     prevGalaxyBtn.style.display = isGalaxyStart ? 'block' : 'none';
+                    document.getElementById('successMenuBtn').style.display = 'none';
 
                     const gIdx = Math.min(currentGalaxy - 1, galaxyThemes.length - 1);
                     const nextMissionDurationEl = document.getElementById('nextMissionDuration');
@@ -2207,6 +2225,7 @@
             document.getElementById('nextMissionBtn').addEventListener('click', startNextMission);
             document.getElementById('nextGalaxyBtn').addEventListener('click', startNextGalaxy);
             document.getElementById('prevGalaxyBtn').addEventListener('click', startPrevGalaxy);
+            document.getElementById('successMenuBtn').addEventListener('click', resetGame);
             document.getElementById('levelsBtn').addEventListener('click', showLevelsScreen);
             document.getElementById('levelsBackBtn').addEventListener('click', () => {
                 document.getElementById('levelsScreen').style.display = 'none';
@@ -2225,6 +2244,25 @@
             const BOSS_ASTEROID_SPEED  = 4200;   // ms — tumbling rock
             const BOSS_UFO_SPEED       = 3400;   // ms — satellite
             const BOSS_BLACKHOLE_SPEED = 6000;   // ms — slow but huge hitbox
+
+            // Rocket/missile image pools
+            const SPACE_ROCKET_IMGS  = [
+                'assets/images/rockets/spaceRockets_001.png',
+                'assets/images/rockets/spaceRockets_002.png',
+                'assets/images/rockets/spaceRockets_003.png',
+                'assets/images/rockets/spaceRockets_004.png',
+            ];
+            const SPACE_MISSILE_IMGS = [
+                'assets/images/rockets/spaceMissiles_001.png',
+                'assets/images/rockets/spaceMissiles_006.png',
+                'assets/images/rockets/spaceMissiles_007.png',
+                'assets/images/rockets/spaceMissiles_018.png',
+                'assets/images/rockets/spaceMissiles_040.png',
+            ];
+            function randRocketImg(pool, size) {
+                const src = pool[Math.floor(Math.random() * pool.length)];
+                return `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain;display:block;pointer-events:none;">`;
+            }
 
             // Returns a random point inside the safe gameplay area
             function bossRandomPos() {
@@ -2286,7 +2324,7 @@
 
                 const r = document.createElement('div');
                 r.className = cssClass;
-                r.textContent = emoji;
+                r.innerHTML = emoji;
 
                 if (hasAnimation) {
                     // CSS animation handles centering via translate(-50%,-50%) inside keyframes
@@ -2322,7 +2360,7 @@
             }
 
             function fireBossRocket(spreadDeg = 0) {
-                fireBossHazard({ emoji: '🚀', cssClass: 'boss-rocket',    speed: BOSS_ROCKET_SPEED,    hitRadius: 26, spreadDeg });
+                fireBossHazard({ emoji: randRocketImg(SPACE_MISSILE_IMGS, 42), cssClass: 'boss-rocket', speed: BOSS_ROCKET_SPEED, hitRadius: 26, spreadDeg });
             }
             function fireBossAsteroid(spreadDeg = 0) {
                 fireBossHazard({ emoji: '☄️',  cssClass: 'boss-asteroid', speed: BOSS_ASTEROID_SPEED,  hitRadius: 32, spreadDeg, hasAnimation: true });
@@ -2489,7 +2527,8 @@
             const sunHealthFill = document.getElementById('sunHealthFill');
             let sunBossActive   = false;
             let sunHealth       = 100;   // 0–100 %
-            let sunHealthTimer  = null;  // setInterval for UV drain
+            let sunHealthTimer  = null;  // setInterval for overlay sync
+            let lastDangerDrainTime = 0; // ms timestamp — throttle beam damage to 100ms
             let sunBossX = 0, sunBossY = 0;
             let sunBossTargetX = 0, sunBossTargetY = 0;
             let sunBossRafId = null;
@@ -2555,7 +2594,7 @@
 
                 const r = document.createElement('div');
                 r.className = cssClass;
-                r.textContent = emoji;
+                r.innerHTML = emoji;
                 if (!isUV) {
                     const angle = Math.atan2(sdy, sdx) * 180 / Math.PI + 90;
                     r.style.cssText = `left:${sunBossX}px;top:${sunBossY}px;transform:rotate(${angle}deg) translate(-50%,-50%);`;
@@ -2594,14 +2633,14 @@
                 fireSunHazard({ emoji: '🔥', cssClass: 'sun-fireball', speed: SUN_FIREBALL_SPEED, hitRadius: 28, spreadDeg: deg });
             }
             function fireSunRocket(deg = 0) {
-                fireSunHazard({ emoji: '🚀', cssClass: 'boss-rocket',  speed: SUN_ROCKET_SPEED,   hitRadius: 26, spreadDeg: deg });
+                fireSunHazard({ emoji: randRocketImg(SPACE_MISSILE_IMGS, 42), cssClass: 'boss-rocket', speed: SUN_ROCKET_SPEED, hitRadius: 26, spreadDeg: deg });
             }
 
             // ── Dangerous rotating UV beams (health-draining) ────────────────
             function fireSunDangerBeam() {
                 if (!sunBossActive || !gameActive || gamePaused) return;
                 const DANGER_LENGTH   = 900;  // px
-                const DANGER_WIDTH    = 80;   // px — matches CSS
+                const DANGER_WIDTH    = 48;   // px — matches CSS (hitbox = ±24px from beam centre)
                 const DANGER_DURATION = 6000; // ms
                 const ROT_SPEED       = 0.011; // rad/frame (~0.63°/frame)
 
@@ -2618,6 +2657,7 @@
 
                     function updateDanger(ts) {
                         if (!sunBossActive || !beam.parentNode) { beam.remove(); return; }
+                        if (gamePaused) { requestAnimationFrame(updateDanger); return; }
                         const elapsed = ts - t0;
                         if (elapsed >= DANGER_DURATION) {
                             beam.style.transition = 'opacity 0.4s';
@@ -2643,9 +2683,21 @@
                             const bPerpX = -Math.cos(angle), bPerpY = Math.sin(angle);
                             const along = relX * bDirX  + relY * bDirY;
                             const perp  = relX * bPerpX + relY * bPerpY;
-                            if (along > 20 && along < DANGER_LENGTH && Math.abs(perp) < DANGER_WIDTH / 2) {
+                            if (along > SUN_RADIUS && along < DANGER_LENGTH && Math.abs(perp) < DANGER_WIDTH / 2) {
                                 window.sunInUVRay = true;
                                 uvOverlay.style.display = 'block';
+                                // Drain 1 hp every 100ms directly (reliable, no flag-timing race)
+                                if (!isInvincible && ts - lastDangerDrainTime >= 100) {
+                                    lastDangerDrainTime = ts;
+                                    sunHealth = Math.max(0, sunHealth - 1);
+                                    sunHealthFill.style.width = sunHealth + '%';
+                                    if (sunHealth < 30) {
+                                        sunHealthFill.style.background = 'linear-gradient(90deg,#cc0000 0%,#ff2200 100%)';
+                                    } else if (sunHealth < 60) {
+                                        sunHealthFill.style.background = 'linear-gradient(90deg,#ff4500 0%,#ff6600 100%)';
+                                    }
+                                    if (sunHealth <= 0) { triggerSunburn(); return; }
+                                }
                                 if (!isInvincible) {
                                     const prevX = window.shipX ?? rawX, prevY = window.shipY ?? rawY;
                                     window.shipX = prevX * 0.87 + rawX * 0.13;
@@ -2674,21 +2726,7 @@
                 sunHealthFill.style.width = '100%';
                 sunHealthFill.style.background = 'linear-gradient(90deg,#ff4500 0%,#ff8c00 45%,#ffd700 100%)';
                 sunHealthBar.style.display = 'block';
-
-                // Health drain: 1% per 100ms while inside UV beam (not invincible)
-                sunHealthTimer = setInterval(() => {
-                    if (!gameActive || gamePaused || isInvincible) return;
-                    if (!window.sunInUVRay) return;
-                    sunHealth = Math.max(0, sunHealth - 1);
-                    sunHealthFill.style.width = sunHealth + '%';
-                    // Colour shifts red as health drops
-                    if (sunHealth < 30) {
-                        sunHealthFill.style.background = 'linear-gradient(90deg,#cc0000 0%,#ff2200 100%)';
-                    } else if (sunHealth < 60) {
-                        sunHealthFill.style.background = 'linear-gradient(90deg,#ff4500 0%,#ff6600 100%)';
-                    }
-                    if (sunHealth <= 0) { triggerSunburn(); }
-                }, 100);
+                lastDangerDrainTime = 0; // reset drain throttle for new run
                 window.shipX = undefined; window.shipY = undefined; window.sunInUVRay = false;
                 const sp = sunRandomPos(); sunBossX = sp.x; sunBossY = sp.y;
                 const tg = sunRandomPos(); sunBossTargetX = tg.x; sunBossTargetY = tg.y;
