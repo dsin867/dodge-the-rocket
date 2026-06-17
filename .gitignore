@@ -87,8 +87,7 @@ env/
 ENV/
 
 # Game-specific ignores
-# Audio files that might be added later
-*.mp3
+# Audio files (don't use any music files restricted by copyright, unless you meet the copyright / accredition requirements)
 *.wav
 *.ogg
 

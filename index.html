@@ -381,6 +381,28 @@
             transform: translateY(-2px);
         }
 
+        .credits-link {
+            padding: 10px 28px;
+            background: transparent;
+            color: #45a29e;
+            border: 1px solid #45a29e;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            display: inline-block;
+        }
+
+        .credits-link:hover {
+            background: rgba(69, 162, 158, 0.12);
+            box-shadow: 0 0 16px rgba(69, 162, 158, 0.35);
+            transform: translateY(-2px);
+        }
+
         .levels-screen {
             position: fixed;
             top: 0; left: 0;
@@ -1318,6 +1340,8 @@
             <div class="instruction-item">⭐ Grab power-ups for invincibility</div>
             <div class="instruction-item">⚠️ Stay inside the arena borders</div>
         </div>
+
+        <a href="credits.html" class="credits-link">📜 CREDITS</a>
     </div>
 
     <!-- Levels Screen -->
