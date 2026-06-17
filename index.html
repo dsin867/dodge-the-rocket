@@ -587,6 +587,18 @@
             100% { bottom: 110%; }
         }
 
+        @keyframes launch1-down {
+            0% { top: -100px; }
+            100% { top: 110%; }
+        }
+
+        .rocket-falling {
+            bottom: auto;
+            top: -100px;
+            transform: rotate(180deg);
+            animation: launch1-down var(--duration) linear forwards;
+        }
+
         .gameOverScreen {
             display: none;
             position: fixed;
@@ -1967,6 +1979,7 @@
                 // Difficulty speed multipliers: easy = slower, hard = faster
                 const speedMultipliers = { easy: 1.8, medium: 1.0, hard: 0.5 };
                 window.rocketSpeedMultiplier = speedMultipliers[selectedDifficulty] || 1.0;
+                window.rocketFalling = currentMission % 2 === 0;
 
                 rocketLauncher = new RocketLauncher(
                     () => {
@@ -2186,7 +2199,7 @@
 
                     galaxy.forEach((theme, i) => {
                         const missionNum = gIdx * 5 + i + 1;
-                        const unlocked = true; // TODO: restore lock after testing — was: missionNum <= attempted
+                        const unlocked = missionNum <= highestUnlockedLevel + 1;
                         const card = document.createElement('div');
                         card.className = 'level-card ' + (unlocked ? 'unlocked' : 'locked');
                         card.innerHTML = `

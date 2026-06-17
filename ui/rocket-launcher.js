@@ -15,7 +15,11 @@ class Rocket {
         _rImg.src = _rocketPool[Math.floor(Math.random() * _rocketPool.length)];
         _rImg.style.cssText = 'width:50px;height:50px;object-fit:contain;display:block;pointer-events:none;';
         this.element.appendChild(_rImg);
-        this.element.classList.add('rocket-type-1');
+        if (window.rocketFalling) {
+            this.element.classList.add('rocket-falling');
+        } else {
+            this.element.classList.add('rocket-type-1');
+        }
         
         // Speed scaled by difficulty multiplier (easy=slow, hard=fast)
         const speedMult = window.rocketSpeedMultiplier || 1.0;
