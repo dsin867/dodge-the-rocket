@@ -1,0 +1,3039 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>🚀 Dodge the Rockets</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 25%, #0f0f23 100%);
+            color: #c5c6c7;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Animated stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .stars::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            opacity: 0.6;
+        }
+
+        .stars::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 60px 50px, #66fcf1, transparent),
+                radial-gradient(1px 1px at 120px 20px, #45a29e, transparent),
+                radial-gradient(1px 1px at 180px 90px, #66fcf1, transparent);
+            background-repeat: repeat;
+            background-size: 250px 150px;
+            opacity: 0.6;
+        }
+
+        html,
+        body {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"><text y="24" font-size="24">🛸</text></svg>') 16 16, auto;
+        }
+
+        /* Game container with walls */
+        .game-container {
+            position: fixed;
+            top: 54px;
+            left: 54px;
+            right: 54px;
+            bottom: 54px;
+            border: 4px solid #66fcf1;
+            border-radius: 10px;
+            box-shadow: 
+                0 0 20px #66fcf1,
+                inset 0 0 20px rgba(102, 252, 241, 0.1);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 10px;
+            z-index: -1;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Title styling */
+        .game-title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            font-weight: 900;
+            color: #66fcf1;
+            text-shadow: 
+                0 0 10px #66fcf1,
+                0 0 20px #66fcf1,
+                0 0 40px #66fcf1;
+            z-index: 100;
+            animation: titlePulse 3s ease-in-out infinite;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* Score display */
+        .score-display {
+            position: fixed;
+            top: 100px;
+            right: 70px;
+            color: #66fcf1;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px #66fcf1;
+            z-index: 100;
+            background: rgba(11, 12, 16, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #45a29e;
+        }
+
+        /* ── Sun health bar (Sunset Mission) ────────────────── */
+        #sunHealthBar {
+            display: none;
+            position: fixed;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        #sunHealthLabel {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffd700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px #ff8c00;
+            margin-bottom: 4px;
+        }
+
+        #sunHealthTrack {
+            width: 340px;
+            height: 18px;
+            background: rgba(0,0,0,0.55);
+            border: 2px solid rgba(255,180,0,0.7);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #sunHealthFill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ff4500 0%, #ff8c00 45%, #ffd700 100%);
+            border-radius: 8px;
+            transition: width 0.12s linear, background 0.4s;
+        }
+
+        .points-display {
+            position: fixed;
+            top: 100px;
+            left: 70px;
+            color: #ffd93d;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-shadow: 0 0 15px #ffd93d, 0 0 30px #ffd93d;
+            z-index: 100;
+            background: rgba(11, 12, 16, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd93d;
+            letter-spacing: 2px;
+        }
+
+        /* Play button styling */
+        .play-button {
+            position: relative;
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #66fcf1, #45a29e);
+            color: #0b0c10;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 30px #66fcf1,
+                0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 200;
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 50px #66fcf1,
+                0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 0 30px #66fcf1, 0 10px 20px rgba(0, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 50px #66fcf1, 0 10px 20px rgba(0, 0, 0, 0.3); }
+        }
+
+        .home-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 12, 16, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+            gap: 28px;
+        }
+
+        .home-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #66fcf1;
+            text-shadow: 
+                0 0 20px #66fcf1,
+                0 0 40px #66fcf1;
+            animation: homeTitleFloat 3s ease-in-out infinite alternate;
+            text-align: center;
+            letter-spacing: 4px;
+            margin: 0;
+        }
+
+        .home-subtitle {
+            font-size: 1rem;
+            color: #45a29e;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -16px;
+        }
+
+        @keyframes homeTitleFloat {
+            0% { transform: translateY(-8px); }
+            100% { transform: translateY(8px); }
+        }
+
+        .difficulty-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .difficulty-label {
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: #45a29e;
+            text-transform: uppercase;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .diff-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 16px 28px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.2s ease;
+        }
+
+        .diff-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .diff-icon { font-size: 1.4rem; }
+
+        .diff-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .diff-desc {
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .diff-easy { color: #26de81; }
+        .diff-easy:hover, .diff-easy.diff-selected {
+            border-color: #26de81;
+            background: rgba(38, 222, 129, 0.15);
+            box-shadow: 0 0 18px rgba(38, 222, 129, 0.4);
+        }
+
+        .diff-medium { color: #ffd93d; }
+        .diff-medium:hover, .diff-medium.diff-selected {
+            border-color: #ffd93d;
+            background: rgba(255, 217, 61, 0.15);
+            box-shadow: 0 0 18px rgba(255, 217, 61, 0.4);
+        }
+
+        .diff-hard { color: #ff4757; }
+        .diff-hard:hover, .diff-hard.diff-selected {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.15);
+            box-shadow: 0 0 18px rgba(255, 71, 87, 0.4);
+        }
+
+        .home-instructions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+            color: #c5c6c7;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        .instruction-item {
+            padding: 4px 0;
+        }
+
+        .levels-button {
+            padding: 12px 32px;
+            background: transparent;
+            color: #66fcf1;
+            border: 2px solid #66fcf1;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.25s ease;
+        }
+
+        .levels-button:hover {
+            background: rgba(102, 252, 241, 0.12);
+            box-shadow: 0 0 22px rgba(102, 252, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .levels-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(11, 12, 16, 0.97);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 600;
+            gap: 24px;
+        }
+
+        .levels-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #66fcf1;
+            text-shadow: 0 0 20px #66fcf1, 0 0 40px #66fcf1;
+            letter-spacing: 4px;
+        }
+
+        .levels-subtitle {
+            font-size: 0.8rem;
+            color: #45a29e;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -14px;
+        }
+
+        .levels-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            max-width: 900px;
+            padding: 0 20px;
+        }
+
+        .level-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 20px 18px;
+            border-radius: 14px;
+            border: 2px solid;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.2s ease;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .level-card.unlocked {
+            background: rgba(102, 252, 241, 0.05);
+            border-color: #66fcf1;
+            color: #66fcf1;
+            cursor: pointer;
+        }
+
+        .level-card.unlocked:hover {
+            transform: translateY(-5px);
+            background: rgba(102, 252, 241, 0.13);
+            box-shadow: 0 0 28px rgba(102, 252, 241, 0.4);
+        }
+
+        .level-card.locked {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        .level-card-icon { font-size: 1.5rem; }
+        .level-card-number { font-size: 1.6rem; font-weight: 900; }
+        .level-card-name { font-size: 0.62rem; letter-spacing: 1px; }
+        .level-card-duration { font-size: 0.58rem; opacity: 0.7; margin-top: 2px; }
+
+        .levels-back-btn {
+            padding: 12px 36px;
+            background: transparent;
+            color: #45a29e;
+            border: 2px solid #45a29e;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .levels-back-btn:hover {
+            background: rgba(69, 162, 158, 0.12);
+            box-shadow: 0 0 18px rgba(69, 162, 158, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .music-toggle {
+            position: fixed;
+            top: 18px;
+            right: 80px;
+            z-index: 700;
+            padding: 7px 16px;
+            background: rgba(11,12,16,0.85);
+            color: #45a29e;
+            border: 1px solid #45a29e;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+        .music-toggle:hover {
+            background: rgba(69,162,158,0.15);
+            box-shadow: 0 0 12px rgba(69,162,158,0.4);
+        }
+
+        .levels-diff-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .levels-diff-tab {
+            padding: 8px 22px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .levels-diff-tab.easy  { color: #26de81; }
+        .levels-diff-tab.medium { color: #ffd93d; }
+        .levels-diff-tab.hard  { color: #ff4757; }
+
+        .levels-diff-tab.easy.active  { border-color: #26de81; background: rgba(38,222,129,0.12); box-shadow: 0 0 14px rgba(38,222,129,0.35); }
+        .levels-diff-tab.medium.active { border-color: #ffd93d; background: rgba(255,217,61,0.12);  box-shadow: 0 0 14px rgba(255,217,61,0.35);  }
+        .levels-diff-tab.hard.active  { border-color: #ff4757; background: rgba(255,71,87,0.12);   box-shadow: 0 0 14px rgba(255,71,87,0.35);   }
+
+        .levels-diff-tab:hover { transform: translateY(-2px); }
+
+        .rocket {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            z-index: 1000;
+            filter: drop-shadow(0 0 10px rgba(255,120,50,0.9));
+            transform: rotate(0deg);
+        }
+
+        .rocket img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+        }
+
+        .rocket-type-1 {
+            animation: launch1 var(--duration) linear forwards;
+        }
+
+        .rocket-type-2 {
+            animation: launch1 var(--duration) linear forwards;
+        }
+
+        .rocket-type-3 {
+            animation: launch1 var(--duration) linear forwards;
+        }
+
+        @keyframes launch1 {
+            0% { bottom: -100px; }
+            100% { bottom: 110%; }
+        }
+
+        .gameOverScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .game-over-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ff4757;
+            text-shadow: 
+                0 0 20px #ff4757,
+                0 0 40px #ff4757;
+            margin-bottom: 30px;
+            animation: explosionPulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes explosionPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .score-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            font-size: 1.5rem;
+            color: #66fcf1;
+            text-shadow: 0 0 10px #66fcf1;
+        }
+
+        .play-again-button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #66fcf1, #45a29e);
+            color: #0b0c10;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 20px #66fcf1,
+                0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .play-again-button:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 30px #66fcf1,
+                0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-button {
+            margin-top: 14px;
+            padding: 12px 28px;
+            background: transparent;
+            color: #a0a8b8;
+            border: 2px solid rgba(160, 168, 184, 0.45);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.25s ease;
+        }
+
+        .menu-button:hover {
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.07);
+            transform: scale(1.05);
+        }
+
+        /* Power-up styles */
+        .power-up {
+            position: fixed;
+            font-size: 44px;
+            z-index: 1200;
+            animation: powerUpGlow 0.75s ease-in-out infinite alternate;
+            cursor: pointer;
+        }
+
+        @keyframes powerUpGlow {
+            0% {
+                filter:
+                    drop-shadow(0 0 6px #fff)
+                    drop-shadow(0 0 18px #ffd93d)
+                    drop-shadow(0 0 40px #ffd93d)
+                    drop-shadow(0 0 70px #ff9800);
+                transform: scale(1) rotate(-6deg);
+            }
+            100% {
+                filter:
+                    drop-shadow(0 0 12px #fff)
+                    drop-shadow(0 0 32px #ffd93d)
+                    drop-shadow(0 0 70px #ff9800)
+                    drop-shadow(0 0 110px #ff5722);
+                transform: scale(1.28) rotate(6deg);
+            }
+        }
+
+        .power-up-particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1199;
+            transition: transform 1s ease-out, opacity 1s ease-out;
+        }
+
+        /* ── Boss Star ─────────────────────────────────────────────────── */
+        #bossStar {
+            display: none;
+            position: fixed;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            z-index: 1100;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            font-size: 110px;
+            line-height: 130px;
+            text-align: center;
+            filter:
+                drop-shadow(0 0 20px #ffea00)
+                drop-shadow(0 0 50px #ff6d00)
+                drop-shadow(0 0 90px #ff3300);
+            animation: bossPulse 1.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes bossPulse {
+            0%  { filter: drop-shadow(0 0 20px #ffea00) drop-shadow(0 0 50px #ff6d00) drop-shadow(0 0  90px #ff3300); transform: translate(-50%,-50%) scale(1);    }
+            100%{ filter: drop-shadow(0 0 40px #fff)    drop-shadow(0 0 80px #ffea00) drop-shadow(0 0 140px #ff6d00); transform: translate(-50%,-50%) scale(1.12); }
+        }
+
+        .boss-rocket {
+            position: fixed;
+            width: 42px;
+            height: 42px;
+            z-index: 1050;
+            pointer-events: none;
+            filter: drop-shadow(0 0 8px #ffea00) drop-shadow(0 0 18px #ff6d00);
+        }
+
+        .boss-rocket img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* ── Sun Boss (Sunset Mission) ─────────────────────────────────── */
+        #sunBoss {
+            position: fixed;
+            font-size: 120px;
+            z-index: 1060;
+            pointer-events: none;
+            display: none;
+            transform: translate(-50%, -50%);
+            animation: sunSpin 10s linear infinite, sunGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes sunSpin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to   { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes sunGlow {
+            0%   { filter: drop-shadow(0 0 30px #ffd700) drop-shadow(0 0 70px #ff8c00); }
+            100% { filter: drop-shadow(0 0 60px #fff300) drop-shadow(0 0 120px #ffd700) drop-shadow(0 0 200px #ff8c00); }
+        }
+
+        .sun-fireball {
+            position: fixed;
+            font-size: 42px;
+            z-index: 1050;
+            pointer-events: none;
+            filter: drop-shadow(0 0 12px #ff4500) drop-shadow(0 0 28px #ff8c00);
+        }
+
+        /* ── Danger UV beams (rotating, health-draining) ─────────────── */
+        .sun-danger-beam {
+            position: fixed;
+            width: 48px;
+            z-index: 1047;
+            pointer-events: none;
+            transform-origin: top center;
+            background: linear-gradient(
+                to right,
+                transparent 0%,
+                rgba(130, 0, 255, 0.35) 16%,
+                rgba(210, 120, 255, 0.80) 36%,
+                rgba(255, 255, 255, 1.00) 44%,
+                rgba(210, 120, 255, 0.80) 58%,
+                rgba(130, 0, 255, 0.35) 80%,
+                transparent 100%
+            );
+            border-radius: 0 0 26px 26px;
+            animation: dangerBeamPulse 0.13s ease-in-out infinite alternate;
+        }
+
+        @keyframes dangerBeamPulse {
+            0%   {
+                filter: brightness(0.9) blur(0.6px);
+                box-shadow: 0 0 8px 4px rgba(255,255,255,0.75),
+                            0 0 22px 9px rgba(190,60,255,0.75),
+                            0 0 55px 22px rgba(110,0,220,0.50);
+            }
+            100% {
+                filter: brightness(1.25) blur(0px);
+                box-shadow: 0 0 14px 6px rgba(255,255,255,1.00),
+                            0 0 36px 16px rgba(220,130,255,1.00),
+                            0 0 80px 36px rgba(140,0,255,0.75);
+            }
+        }
+
+        #uvOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1040;
+            pointer-events: none;
+            background: rgba(180, 255, 50, 0.10);
+            border: 6px solid rgba(160, 255, 0, 0.5);
+            animation: uvOverlayPulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes uvOverlayPulse {
+            0%   { border-color: rgba(160,255,0,0.4); }
+            100% { border-color: rgba(255,255,0,0.8); }
+        }
+
+        @keyframes asteroidSpin {
+            from { transform: translate(-50%, -50%) rotate(0deg);   }
+            to   { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes blackholePulse {
+            0%   { transform: translate(-50%, -50%) scale(1);   filter: drop-shadow(0 0 10px #7b2ff7) drop-shadow(0 0 28px #4a0080); }
+            50%  { transform: translate(-50%, -50%) scale(1.3); filter: drop-shadow(0 0 22px #b050ff) drop-shadow(0 0 55px #7b2ff7); }
+            100% { transform: translate(-50%, -50%) scale(1);   filter: drop-shadow(0 0 10px #7b2ff7) drop-shadow(0 0 28px #4a0080); }
+        }
+
+        .boss-asteroid {
+            position: fixed;
+            font-size: 40px;
+            z-index: 1050;
+            pointer-events: none;
+            animation: asteroidSpin 0.65s linear infinite;
+            filter: drop-shadow(0 0 8px #ff8c00) drop-shadow(0 0 22px #a0522d);
+        }
+
+        .boss-ufo {
+            position: fixed;
+            font-size: 36px;
+            z-index: 1050;
+            pointer-events: none;
+            filter: drop-shadow(0 0 10px #00ff88) drop-shadow(0 0 26px #00aa55);
+        }
+
+        .boss-blackhole {
+            position: fixed;
+            font-size: 50px;
+            z-index: 1050;
+            pointer-events: none;
+            animation: blackholePulse 1.1s ease-in-out infinite;
+        }
+
+        /* ── Supernova explosion ───────────────────────────────────────── */
+        #supernovaOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            pointer-events: none;
+            background: radial-gradient(circle, #fff 0%, #ffea00 15%, #ff6d00 35%, #ff2200 55%, transparent 75%);
+            transform: scale(0);
+            opacity: 0;
+            border-radius: 50%;
+            left: 50%; top: 50%;
+            width: 0; height: 0;
+            margin: 0;
+        }
+
+        .supernova-ring {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 4999;
+            border: 6px solid;
+            transform: translate(-50%,-50%) scale(0);
+            opacity: 1;
+        }
+
+        /* Forcefield effect when invincible */
+        #forcefield {
+            display: none;
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1400;
+            transform: translate(-50%, -50%);
+        }
+
+        #forcefield.active {
+            display: block;
+            background: 
+                radial-gradient(circle at 35% 35%, rgba(102,252,241,0.45) 0%, transparent 55%),
+                radial-gradient(circle, rgba(102,252,241,0.15) 0%, rgba(102,252,241,0.05) 55%, transparent 100%);
+            border: 2px solid rgba(102,252,241,0.9);
+            box-shadow:
+                0 0 12px #66fcf1,
+                0 0 30px rgba(102,252,241,0.7),
+                0 0 70px rgba(102,252,241,0.35),
+                inset 0 0 25px rgba(102,252,241,0.3),
+                inset 0 0 6px rgba(255,255,255,0.5);
+            animation: forcefieldPulse 1.2s ease-in-out infinite;
+        }
+
+        /* Outer slow-spinning dashed orbit */
+        #forcefield::before {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+            border: 2px dashed rgba(102,252,241,0.55);
+            box-shadow: 0 0 10px rgba(102,252,241,0.3);
+            animation: forcefieldOrbit 2s linear infinite;
+        }
+
+        /* Inner fast-spinning arc */
+        #forcefield::after {
+            content: '';
+            position: absolute;
+            inset: -28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(102,252,241,0.8);
+            border-right-color: rgba(102,252,241,0.4);
+            box-shadow: 0 0 16px rgba(102,252,241,0.4);
+            animation: forcefieldOrbit 0.75s linear infinite reverse;
+        }
+
+        @keyframes forcefieldPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow:
+                    0 0 12px #66fcf1,
+                    0 0 30px rgba(102,252,241,0.7),
+                    0 0 70px rgba(102,252,241,0.35),
+                    inset 0 0 25px rgba(102,252,241,0.3),
+                    inset 0 0 6px rgba(255,255,255,0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.12);
+                box-shadow:
+                    0 0 20px #66fcf1,
+                    0 0 55px rgba(102,252,241,0.85),
+                    0 0 100px rgba(102,252,241,0.45),
+                    inset 0 0 35px rgba(102,252,241,0.4),
+                    inset 0 0 10px rgba(255,255,255,0.6);
+            }
+        }
+
+        @keyframes forcefieldOrbit {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* Warning state — red crackling */
+        #forcefield.warning {
+            border-color: rgba(255,71,87,0.95);
+            background:
+                radial-gradient(circle at 35% 35%, rgba(255,71,87,0.45) 0%, transparent 55%),
+                radial-gradient(circle, rgba(255,71,87,0.18) 0%, rgba(255,71,87,0.05) 55%, transparent 100%);
+            animation: forcefieldPulseWarning 0.35s ease-in-out infinite, forcefieldShake 0.1s linear infinite;
+        }
+
+        #forcefield.warning::before {
+            border-color: rgba(255,71,87,0.6);
+            box-shadow: 0 0 14px rgba(255,71,87,0.5);
+            animation: forcefieldOrbit 1s linear infinite;
+        }
+
+        #forcefield.warning::after {
+            border-top-color: rgba(255,71,87,0.9);
+            border-right-color: rgba(255,150,87,0.5);
+            box-shadow: 0 0 18px rgba(255,71,87,0.5);
+            animation: forcefieldOrbit 0.4s linear infinite reverse;
+        }
+
+        @keyframes forcefieldPulseWarning {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow:
+                    0 0 14px #ff4757,
+                    0 0 35px rgba(255,71,87,0.7),
+                    0 0 75px rgba(255,71,87,0.35),
+                    inset 0 0 25px rgba(255,71,87,0.3);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.15);
+                box-shadow:
+                    0 0 25px #ff4757,
+                    0 0 60px rgba(255,71,87,0.9),
+                    0 0 110px rgba(255,71,87,0.5),
+                    inset 0 0 40px rgba(255,71,87,0.45);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes forcefieldShake {
+            0%   { translate: 0px 0px; }
+            25%  { translate: 1px -1px; }
+            50%  { translate: -1px 1px; }
+            75%  { translate: 1px 1px; }
+            100% { translate: 0px 0px; }
+        }
+
+        .points-milestone {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #66fcf1;
+            text-shadow: 0 0 20px #66fcf1, 0 0 40px #66fcf1;
+            z-index: 2000;
+            pointer-events: none;
+            animation: milestoneFloat 2.5s ease-out forwards;
+        }
+
+        @keyframes milestoneFloat {
+            0%   { opacity: 0; transform: translateX(-50%) translateY(0);    }
+            20%  { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+            80%  { opacity: 1; transform: translateX(-50%) translateY(-40px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+        }
+
+        .power-up-countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffd93d;
+            font-family: 'Orbitron', monospace;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1500;
+            border: 2px solid #ffd93d;
+            pointer-events: none;
+        }
+
+        .countdown-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 0 0 20px #ffd93d;
+        }
+
+        .game-paused {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 71, 87, 0.9);
+            color: white;
+            font-family: 'Orbitron', monospace;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1600;
+            border: 3px solid #ff4757;
+        }
+
+        .pause-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #ff4757;
+        }
+
+        .pause-message {
+            font-size: 1.2rem;
+        }
+
+        /* Collectible items */
+        .collectible {
+            position: fixed;
+            bottom: -100px;
+            font-size: 35px;
+            z-index: 1100;
+            animation: collectibleLaunch var(--duration) linear forwards;
+            cursor: pointer;
+        }
+
+        @keyframes collectibleLaunch {
+            0% { bottom: -100px; }
+            100% { bottom: 110%; }
+        }
+
+        #mouseTrailCanvas {
+            position: fixed;
+            top: 58px;
+            left: 58px;
+            right: 58px;
+            bottom: 58px;
+            pointer-events: none;
+            z-index: 50;
+            border-radius: 6px;
+        }
+
+        /* Mission Success Screen */
+        .mission-success {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 3000;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .success-title {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ffd93d;
+            text-shadow: 
+                0 0 20px #ffd93d,
+                0 0 40px #ffd93d;
+            margin-bottom: 30px;
+            animation: successPulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .mission-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            font-size: 1.5rem;
+            color: #66fcf1;
+            text-shadow: 0 0 10px #66fcf1;
+        }
+
+        .next-mission-button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ffd93d, #ff9ff3);
+            color: #0b0c10;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 20px #ffd93d,
+                0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .next-mission-button:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 30px #ffd93d,
+                0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .success-btn-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .galaxy-nav-btn {
+            padding: 13px 26px;
+            background: linear-gradient(45deg, #6d28d9, #a855f7);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 22px #7c3aed, 0 5px 15px rgba(0,0,0,0.35);
+            transition: all 0.3s ease;
+        }
+
+        .galaxy-nav-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 38px #a855f7, 0 10px 20px rgba(0,0,0,0.45);
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd93d;
+            z-index: 3500;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .wall-top { top: 0; left: 0; right: 0; height: 54px; }
+        .wall-bottom { bottom: 0; left: 0; right: 0; height: 54px; }
+        .wall-left { top: 0; bottom: 0; left: 0; width: 54px; }
+        .wall-right { top: 0; bottom: 0; right: 0; width: 54px; }
+    </style>
+</head>
+
+<body>
+    <div class="stars"></div>
+    
+    <!-- Invisible walls -->
+    <div class="wall wall-top"></div>
+    <div class="wall wall-bottom"></div>
+    <div class="wall wall-left"></div>
+    <div class="wall wall-right"></div>
+    
+    <!-- Game container border -->
+    <div class="game-container"></div>
+    
+    <!-- Game title -->
+    <div id="gameTitle" class="game-title">DODGE THE ROCKETS</div>
+    
+    <!-- Points display (top-left) -->
+    <div id="pointsDisplay" class="points-display" style="display: none;">⭐ <span id="pointsScore">0</span></div>
+
+    <!-- Score display -->
+    <div id="scoreDisplay" class="score-display" style="display: none;">
+        <div>Time: <span id="timeScore">0</span>s</div>
+        <div>Dodged: <span id="rocketScore">0</span></div>
+        <div>Collected: <span id="collectibleScore">0</span></div>
+        <div id="powerUpStatus" style="display: none; color: #ffd93d; font-weight: bold;">⚡ INVINCIBLE: <span id="powerUpTimer">5</span>s</div>
+    </div>
+    
+    <!-- Power-up countdown display -->
+    <div id="powerUpCountdown" class="power-up-countdown" style="display: none;">
+        <div class="countdown-text">Power-up available in:</div>
+        <div class="countdown-number" id="countdownNumber">5</div>
+    </div>
+    
+    <!-- Game paused indicator -->
+    <div id="gamePausedIndicator" class="game-paused" style="display: none;">
+        <div class="pause-title">⚠️ GAME PAUSED ⚠️</div>
+        <div class="pause-message">Return to game area to continue</div>
+    </div>
+
+    <canvas id="mouseTrailCanvas"></canvas>
+    <div id="forcefield"></div>
+    <div id="bossStar">🌟</div>
+    <div id="sunBoss">☀️</div>
+    <div id="uvOverlay"></div>
+    <div id="supernovaOverlay"></div>
+    <!-- Sun health bar -->
+    <div id="sunHealthBar">
+        <div id="sunHealthLabel">♥ HEALTH</div>
+        <div id="sunHealthTrack"><div id="sunHealthFill"></div></div>
+    </div>
+    <button id="musicToggle" class="music-toggle">🔊 MUSIC</button>
+
+    <!-- Home Screen -->
+    <div id="homeScreen" class="home-screen">
+        <div class="home-title">🚀 DODGE THE ROCKETS</div>
+        <div class="home-subtitle">Survive the barrage. Dodge everything.</div>
+
+        <button id="startBtn" class="play-button">🚀 START MISSION 🚀</button>
+        <button id="levelsBtn" class="levels-button">📋 LEVELS</button>
+
+        <div class="difficulty-section">
+            <div class="difficulty-label">SELECT DIFFICULTY</div>
+            <div class="difficulty-buttons">
+                <button class="diff-btn diff-easy" id="diffEasy">
+                    <span class="diff-icon">🟢</span>
+                    <span class="diff-name">EASY</span>
+                    <span class="diff-desc">Slow rockets</span>
+                </button>
+                <button class="diff-btn diff-medium diff-selected" id="diffMedium">
+                    <span class="diff-icon">🟡</span>
+                    <span class="diff-name">MEDIUM</span>
+                    <span class="diff-desc">Normal speed</span>
+                </button>
+                <button class="diff-btn diff-hard" id="diffHard">
+                    <span class="diff-icon">🔴</span>
+                    <span class="diff-name">HARD</span>
+                    <span class="diff-desc">Fast rockets</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="home-instructions">
+            <div class="instruction-item">🖱️ Move your cursor to dodge rockets</div>
+            <div class="instruction-item">🍎 Collect items for bonus points</div>
+            <div class="instruction-item">⭐ Grab power-ups for invincibility</div>
+            <div class="instruction-item">⚠️ Stay inside the arena borders</div>
+        </div>
+    </div>
+
+    <!-- Levels Screen -->
+    <div id="levelsScreen" class="levels-screen">
+        <div class="levels-title">📋 MISSION SELECT</div>
+        <div class="levels-subtitle">Choose an attempted mission to replay</div>
+        <div class="levels-diff-tabs">
+            <button class="levels-diff-tab easy"   data-diff="easy">🟢 EASY</button>
+            <button class="levels-diff-tab medium" data-diff="medium">🟡 MEDIUM</button>
+            <button class="levels-diff-tab hard"   data-diff="hard">🔴 HARD</button>
+        </div>
+        <div id="levelsGrid" class="levels-grid"></div>
+        <button id="levelsBackBtn" class="levels-back-btn">← BACK</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="gameOverScreen">
+        <div class="game-over-title">💥 MISSION FAILED! 💥</div>
+        <div class="score-info">
+            <div>Survival Time: <span id="finalTime">0</span> seconds</div>
+            <div>Rockets Dodged: <span id="finalRockets">0</span></div>
+            <div>Items Collected: <span id="finalCollectibles">0</span></div>
+        </div>
+        <button id="playAgainBtn" class="play-again-button">🔄 RETRY MISSION</button>
+        <button id="menuBtn" class="menu-button">🏠 MENU</button>
+    </div>
+
+    <!-- Mission Success Screen -->
+    <div id="missionSuccessScreen" class="mission-success">
+        <div id="successTitle" class="success-title">🎉 MISSION 1 COMPLETED! 🎉</div>
+        <div class="mission-info">
+            <div>Mission <span id="successMissionNumber">1</span> Duration: <span id="successTime">0</span> seconds</div>
+            <div>Rockets Dodged: <span id="successRockets">0</span></div>
+            <div>Items Collected: <span id="successCollectibles">0</span></div>
+            <div id="nextMissionInfo">
+                <div style="margin-top: 20px; font-size: 1.2rem;">🚀 Next Mission Info 🚀</div>
+                <div>Duration: <span id="nextMissionDuration">120</span> seconds</div>
+                <div>Theme: <span id="nextMissionTheme">Fire Mission</span></div>
+            </div>
+            <div id="galaxyCompleteInfo" style="display:none; margin-top: 20px; font-size: 1.4rem; color: #ffd93d; text-shadow: 0 0 20px #ffd93d;">🌌 GALAXY COMPLETE! 🌌</div>
+        </div>
+        <div class="success-btn-row">
+            <button id="prevGalaxyBtn" class="galaxy-nav-btn" style="display:none">← PREV GALAXY</button>
+            <button id="nextMissionBtn" class="next-mission-button">🚀 START NEXT MISSION</button>
+            <button id="nextGalaxyBtn" class="galaxy-nav-btn" style="display:none">🌌 NEXT GALAXY →</button>
+            <button id="successMenuBtn" class="menu-button" style="display:none">🏠 MAIN MENU</button>
+        </div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="explosionSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAg+ltryxnkpBSl+zPLZizoIGGS57+OZSA0PUqzn77BdGgU2jdXzzn0vBSJ0xe/eizELElyx6OyrWBUIOpHY88p9LgUme8rx3I4+CRZiturqpVITC1Kq5O+zYBoGNIzU8tGAMgUhccPu45U2CxJYrOPyxoA2BSp+zPLdizQKElyx5+2ubxgELIvS8dR/NwYfccLu24k5CRVduenmnUoODVGn4O60XxsFN47R8dqCLAUie8jy24c6CRZftuTpnEsODU+q4e+0aRgFLIvS8dF8MgUhccHu3Y05CRVduunmm0wOEU+p4O+0XxwGOIzU8tGAMgcjd8Xu2oo5CRVhtuPqm0sODlGq4u60XhoGNovS8dGANgUie8Xv2Yg7ChVftuLnm0kNDVCp4e+0XxsGNozT8tCDNwYgb8Hu2Ik4CBZftuHun00PEFF0w+7dmzYKEFlrubDRJVRYOD" type="audio/wav">
+    </audio>
+
+    <script src="ui/rocket-launcher.js"></script>
+
+    <script>
+        window.onload = () => {
+            const homeScreen = document.getElementById('homeScreen');
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const startBtn = document.getElementById('startBtn');
+            const playAgainBtn = document.getElementById('playAgainBtn');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const timeScore = document.getElementById('timeScore');
+            const rocketScore = document.getElementById('rocketScore');
+            const collectibleScore = document.getElementById('collectibleScore');
+            const pointsScore = document.getElementById('pointsScore');
+            const pointsDisplay = document.getElementById('pointsDisplay');
+            const finalTime = document.getElementById('finalTime');
+            const finalRockets = document.getElementById('finalRockets');
+            const finalCollectibles = document.getElementById('finalCollectibles');
+            const powerUpStatus = document.getElementById('powerUpStatus');
+            const powerUpTimer = document.getElementById('powerUpTimer');
+            const powerUpCountdown = document.getElementById('powerUpCountdown');
+            const countdownNumber = document.getElementById('countdownNumber');
+            const gamePausedIndicator = document.getElementById('gamePausedIndicator');
+            const explosionSound = document.getElementById('explosionSound');
+            const forcefield = document.getElementById('forcefield');
+
+            let rocketLauncher;
+            let launchInterval;
+            let gameStartTime;
+            let gameTimer;
+            let powerUpSpawnTimer;
+            let powerUpCountdownTimer;
+            let rocketsDodged = 0;
+            let collectiblesCollected = 0;
+            let totalPoints = 0;
+            let lastPointSecond = 0;
+            let nextMilestone = 50000;
+            let gameActive = false;
+            let gamePaused = false;
+            let isInvincible = false;
+            let invincibilityTimer = null;
+            let invincibilityTimeLeft = 0;
+            let mouseOutOfBounds = false;
+            let pausedTime = 0;
+            let pauseStartTime = 0;
+            let currentMission = 1;
+            let currentGalaxy = 1;
+            let missionDuration = 60; // Start with 60 seconds
+            let missionStartTime = 0;
+            let selectedDifficulty = 'medium'; // easy | medium | hard
+            let highestUnlockedLevel = parseInt(localStorage.getItem('dtr_highestUnlockedLevel') || '0');
+
+            function getAttempted(diff) {
+                return parseInt(localStorage.getItem('dtr_highestAttemptedLevel_' + diff) || '0');
+            }
+            function saveAttempted(diff, val) {
+                localStorage.setItem('dtr_highestAttemptedLevel_' + diff, val);
+            }
+
+            // Difficulty button wiring
+            const diffButtons = { easy: document.getElementById('diffEasy'), medium: document.getElementById('diffMedium'), hard: document.getElementById('diffHard') };
+            Object.entries(diffButtons).forEach(([diff, btn]) => {
+                btn.addEventListener('click', () => {
+                    selectedDifficulty = diff;
+                    Object.values(diffButtons).forEach(b => b.classList.remove('diff-selected'));
+                    btn.classList.add('diff-selected');
+                });
+            });
+            
+            const galaxyNames = ['Milky Way', 'Andromeda'];
+
+            const galaxyThemes = [
+                // ── Galaxy 1: Milky Way ───────────────────────────────
+                [
+                    { name: "Space Mission",  duration:  60, primary: "#66fcf1", secondary: "#45a29e", bg: "radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 25%, #0f0f23 100%)", accent: "#4ecdc4" },
+                    { name: "Fire Mission",   duration: 120, primary: "#ff6b6b", secondary: "#ff4757", bg: "radial-gradient(ellipse at center, #2c1810 0%, #3c2415 25%, #1a0f08 100%)", accent: "#ff9ff3" },
+                    { name: "Ocean Mission",  duration: 180, primary: "#3742fa", secondary: "#2f3542", bg: "radial-gradient(ellipse at center, #0c2461 0%, #0a1e3d 25%, #040d19 100%)", accent: "#70a1ff" },
+                    { name: "Forest Mission", duration: 180, primary: "#26de81", secondary: "#20bf6b", bg: "radial-gradient(ellipse at center, #0f3460 0%, #0a2c4a 25%, #051729 100%)", accent: "#7bed9f" },
+                    { name: "Sunset Mission", duration: 180, primary: "#ff7675", secondary: "#fd79a8", bg: "radial-gradient(ellipse at center, #2d3436 0%, #636e72 25%, #2d3436 100%)", accent: "#fdcb6e" },
+                ],
+                // ── Galaxy 2: Andromeda ─────────────────────────────
+                [
+                    { name: "Nebula Mission",    duration: 120, primary: "#e040fb", secondary: "#9c27b0", bg: "radial-gradient(ellipse at center, #1a0533 0%, #2d0b56 25%, #0d0020 100%)", accent: "#ce93d8" },
+                    { name: "Asteroid Mission",  duration: 180, primary: "#90a4ae", secondary: "#546e7a", bg: "radial-gradient(ellipse at center, #1c1c1c 0%, #2e2e2e 25%, #0a0a0a 100%)", accent: "#cfd8dc" },
+                    { name: "Wormhole Mission",  duration: 180, primary: "#1de9b6", secondary: "#00bfa5", bg: "radial-gradient(ellipse at center, #002924 0%, #004d40 25%, #001a17 100%)", accent: "#a7ffeb" },
+                    { name: "Comet Mission",     duration: 180, primary: "#82b1ff", secondary: "#448aff", bg: "radial-gradient(ellipse at center, #0d1b4b 0%, #102060 25%, #060d29 100%)", accent: "#b3c8ff" },
+                    { name: "Supernova Mission", duration: 180, primary: "#ffea00", secondary: "#ff6d00", bg: "radial-gradient(ellipse at center, #2c1400 0%, #4a1f00 25%, #1a0d00 100%)", accent: "#fff176" },
+                ],
+            ];
+
+            function getMissionDuration(missionNum) {
+                const gIdx = Math.min(Math.floor((missionNum - 1) / 5), galaxyThemes.length - 1);
+                const mIdx = (missionNum - 1) % 5;
+                return galaxyThemes[gIdx][mIdx].duration;
+            }
+
+            function getCurrentTheme() {
+                const gIdx = Math.min(currentGalaxy - 1, galaxyThemes.length - 1);
+                return galaxyThemes[gIdx][(currentMission - 1) % 5];
+            }
+            
+            function applyTheme(theme) {
+                document.documentElement.style.setProperty('--primary-color', theme.primary);
+                document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+                document.documentElement.style.setProperty('--accent-color', theme.accent);
+
+                // Expose theme name to the trail renderer
+                window.currentTrailTheme = theme.name;
+
+                const elements = document.querySelectorAll('.game-title, .home-title, .score-display, .play-button');
+                elements.forEach(el => {
+                    if (el.classList.contains('play-button')) {
+                        el.style.background = `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`;
+                        el.style.boxShadow = `0 0 30px ${theme.primary}, 0 10px 20px rgba(0, 0, 0, 0.3)`;
+                    } else {
+                        el.style.color = theme.primary;
+                        el.style.textShadow = `0 0 10px ${theme.primary}, 0 0 20px ${theme.primary}`;
+                    }
+                });
+            }
+
+            // Create explosion sound programmatically
+            function createExplosionSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = audioContext.currentTime;
+
+                    // Layer 1: deep bass thud — the body of the crash
+                    const thud = audioContext.createOscillator();
+                    const thudGain = audioContext.createGain();
+                    thud.type = 'sine';
+                    thud.frequency.setValueAtTime(120, now);
+                    thud.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+                    thudGain.gain.setValueAtTime(0.8, now);
+                    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+                    thud.connect(thudGain);
+                    thudGain.connect(audioContext.destination);
+                    thud.start(now);
+                    thud.stop(now + 0.5);
+
+                    // Layer 2: mid crunch noise burst — debris/metal scraping
+                    const crunchSize = Math.floor(audioContext.sampleRate * 0.6);
+                    const crunchBuf  = audioContext.createBuffer(1, crunchSize, audioContext.sampleRate);
+                    const crunchData = crunchBuf.getChannelData(0);
+                    for (let i = 0; i < crunchSize; i++) {
+                        // Filtered noise — emphasise low-mid crunch character
+                        crunchData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / crunchSize, 0.6);
+                    }
+                    const crunch     = audioContext.createBufferSource();
+                    crunch.buffer    = crunchBuf;
+                    const crunchFilter = audioContext.createBiquadFilter();
+                    crunchFilter.type = 'bandpass';
+                    crunchFilter.frequency.value = 600;
+                    crunchFilter.Q.value = 0.8;
+                    const crunchGain = audioContext.createGain();
+                    crunchGain.gain.setValueAtTime(1.0, now);
+                    crunchGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+                    crunch.connect(crunchFilter);
+                    crunchFilter.connect(crunchGain);
+                    crunchGain.connect(audioContext.destination);
+                    crunch.start(now);
+
+                    // Layer 3: high-frequency glass/debris scatter — short tail
+                    const glassSize = Math.floor(audioContext.sampleRate * 0.25);
+                    const glassBuf  = audioContext.createBuffer(1, glassSize, audioContext.sampleRate);
+                    const glassData = glassBuf.getChannelData(0);
+                    for (let i = 0; i < glassSize; i++) {
+                        glassData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / glassSize, 1.5);
+                    }
+                    const glass      = audioContext.createBufferSource();
+                    glass.buffer     = glassBuf;
+                    const glassFilter = audioContext.createBiquadFilter();
+                    glassFilter.type = 'highpass';
+                    glassFilter.frequency.value = 3000;
+                    const glassGain  = audioContext.createGain();
+                    glassGain.gain.setValueAtTime(0.4, now + 0.05);
+                    glassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                    glass.connect(glassFilter);
+                    glassFilter.connect(glassGain);
+                    glassGain.connect(audioContext.destination);
+                    glass.start(now + 0.05);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            function updateTimer() {
+                if (!gameActive || gamePaused) return;
+                const currentTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
+                timeScore.textContent = currentTime;
+
+                // Award 200 points every second
+                if (currentTime > lastPointSecond) {
+                    lastPointSecond = currentTime;
+                    addPoints(100);
+                }
+
+                // Check for mission completion
+                if (currentTime >= missionDuration) {
+                    missionCompleted();
+                }
+            }
+
+            function addPoints(amount) {
+                totalPoints += amount;
+                pointsScore.textContent = totalPoints.toLocaleString();
+
+                // Check 50k milestone for free invincibility
+                if (totalPoints >= nextMilestone) {
+                    nextMilestone += 50000;
+                    activateInvincibility(5);
+                    showMilestoneNotice();
+                }
+            }
+
+            function showMilestoneNotice() {
+                const notice = document.createElement('div');
+                notice.className = 'points-milestone';
+                notice.textContent = '🛡️ 50,000 PTS — 5s SHIELD!';
+                document.body.appendChild(notice);
+                setTimeout(() => notice.remove(), 2500);
+            }
+
+            function spawnPowerUp() {
+                if (!gameActive) return;
+
+                // Don't spawn if less than 15s left in the mission — no time to use it
+                const currentTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
+                if (missionDuration - currentTime < 15) return;
+                
+                const powerUp = document.createElement('div');
+                powerUp.className = 'power-up';
+                powerUp.textContent = '⭐';
+                powerUp.style.left = Math.random() * (window.innerWidth - 150) + 75 + 'px';
+                powerUp.style.top = Math.random() * (window.innerHeight - 200) + 100 + 'px';
+                
+                document.body.appendChild(powerUp);
+
+                // Particle emitter — spawns glowing sparks that drift outward
+                const PARTICLE_COLORS = ['#ffd93d', '#ff9800', '#fff176', '#ff5722', '#ffffff'];
+                const particleInterval = setInterval(() => {
+                    if (!powerUp.parentNode) { clearInterval(particleInterval); return; }
+                    const rect = powerUp.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    for (let i = 0; i < 4; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'power-up-particle';
+                        const size = 4 + Math.random() * 7;
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 55 + Math.random() * 65;
+                        const color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+                        p.style.cssText = `width:${size}px;height:${size}px;background:${color};box-shadow:0 0 ${size * 2}px ${color};left:${cx - size / 2}px;top:${cy - size / 2}px;opacity:1;`;
+                        document.body.appendChild(p);
+                        requestAnimationFrame(() => {
+                            p.style.transform = `translate(${Math.cos(angle) * dist}px,${Math.sin(angle) * dist}px) scale(0.2)`;
+                            p.style.opacity = '0';
+                        });
+                        setTimeout(() => p.remove(), 1050);
+                    }
+                }, 180);
+
+                // Stop particles when power-up is removed (handled inside interval above)
+
+                // Show countdown
+                powerUpCountdown.style.display = 'block';
+                let countdown = 10;
+                countdownNumber.textContent = countdown;
+                
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    countdownNumber.textContent = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        powerUpCountdown.style.display = 'none';
+                        if (powerUp.parentNode) {
+                            powerUp.remove();
+                        }
+                    }
+                }, 1000);
+                
+                // Remove power-up after 10 seconds
+                setTimeout(() => {
+                    if (powerUp.parentNode) {
+                        powerUp.remove();
+                    }
+                    powerUpCountdown.style.display = 'none';
+                }, 10000);
+                
+                // Hover handler for collecting power-up
+                powerUp.addEventListener('mouseenter', () => {
+                    if (!gamePaused) {
+                        activateInvincibility();
+                        powerUp.remove();
+                        powerUpCountdown.style.display = 'none';
+                        clearInterval(countdownInterval);
+                    }
+                });
+            }
+
+            function activateInvincibility(duration = 5) {
+                // Stack time if already invincible, otherwise start fresh
+                invincibilityTimeLeft = isInvincible ? invincibilityTimeLeft + duration : duration;
+                isInvincible = true;
+                powerUpStatus.style.display = 'block';
+                forcefield.classList.add('active');
+                forcefield.classList.remove('warning');
+                powerUpTimer.textContent = invincibilityTimeLeft;
+                
+                if (invincibilityTimer) {
+                    clearInterval(invincibilityTimer);
+                }
+                
+                invincibilityTimer = setInterval(() => {
+                    invincibilityTimeLeft--;
+                    powerUpTimer.textContent = invincibilityTimeLeft;
+
+                    if (invincibilityTimeLeft <= 2) {
+                        forcefield.classList.add('warning');
+                    }
+
+                    if (invincibilityTimeLeft <= 0) {
+                        isInvincible = false;
+                        invincibilityTimeLeft = 0;
+                        powerUpStatus.style.display = 'none';
+                        forcefield.classList.remove('active', 'warning');
+                        clearInterval(invincibilityTimer);
+                    }
+                }, 1000);
+            }
+
+            function missionCompleted() {
+                gameActive = false;
+                gamePaused = false;
+                clearInterval(gameTimer);
+                clearInterval(powerUpSpawnTimer);
+                if (invincibilityTimer) {
+                    clearInterval(invincibilityTimer);
+                }
+                if (window.stopBoss) window.stopBoss();
+                if (window.stopSunBoss) window.stopSunBoss();
+                if (window.stopSpaceMusic) window.stopSpaceMusic();
+
+                // Create confetti and play celebration sound
+                createConfetti();
+                createCelebrationSound();
+
+                // Unlock this mission level for replay
+                if (currentMission > highestUnlockedLevel) {
+                    highestUnlockedLevel = currentMission;
+                    localStorage.setItem('dtr_highestUnlockedLevel', highestUnlockedLevel);
+                }
+                
+                const survivalTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
+                
+                // Show mission success screen
+                const missionSuccessScreen = document.getElementById('missionSuccessScreen');
+                const successTitle = document.getElementById('successTitle');
+                const successMissionNumber = document.getElementById('successMissionNumber');
+                const successTime = document.getElementById('successTime');
+                const successRockets = document.getElementById('successRockets');
+                const successCollectibles = document.getElementById('successCollectibles');
+                
+                successTitle.textContent = `🎉 MISSION ${currentMission} COMPLETED! 🎉`;
+                successMissionNumber.textContent = currentMission;
+                successTime.textContent = survivalTime;
+                successRockets.textContent = rocketsDodged;
+                successCollectibles.textContent = collectiblesCollected;
+
+                // Determine galaxy position (missions per galaxy = 5)
+                const missionInGalaxy = ((currentMission - 1) % 5) + 1;
+                const isGalaxyEnd = missionInGalaxy === 5;
+                const isGalaxyStart = missionInGalaxy === 1 && currentGalaxy > 1;
+                const hasNextGalaxy = currentGalaxy < galaxyThemes.length;
+
+                const nextMissionInfo = document.getElementById('nextMissionInfo');
+                const galaxyCompleteInfo = document.getElementById('galaxyCompleteInfo');
+                const nextGalaxyBtn = document.getElementById('nextGalaxyBtn');
+                const prevGalaxyBtn = document.getElementById('prevGalaxyBtn');
+                const nextMissionBtnEl = document.getElementById('nextMissionBtn');
+
+                if (isGalaxyEnd) {
+                    // Last mission of this galaxy — show galaxy complete, hide regular next
+                    nextMissionInfo.style.display = 'none';
+                    galaxyCompleteInfo.style.display = 'block';
+                    galaxyCompleteInfo.textContent = `🌌 ${(galaxyNames[currentGalaxy - 1] || 'GALAXY ' + currentGalaxy).toUpperCase()} COMPLETE! 🌌`;
+                    nextMissionBtnEl.style.display = 'none';
+                    nextGalaxyBtn.style.display = hasNextGalaxy ? 'block' : 'none';
+                    prevGalaxyBtn.style.display = 'none';
+                    document.getElementById('successMenuBtn').style.display = hasNextGalaxy ? 'none' : 'block';
+                } else {
+                    // Mid-galaxy — show regular next mission info
+                    nextMissionInfo.style.display = 'block';
+                    galaxyCompleteInfo.style.display = 'none';
+                    nextMissionBtnEl.style.display = 'block';
+                    nextGalaxyBtn.style.display = 'none';
+                    prevGalaxyBtn.style.display = isGalaxyStart ? 'block' : 'none';
+                    document.getElementById('successMenuBtn').style.display = 'none';
+
+                    const gIdx = Math.min(currentGalaxy - 1, galaxyThemes.length - 1);
+                    const nextMissionDurationEl = document.getElementById('nextMissionDuration');
+                    const nextMissionThemeEl = document.getElementById('nextMissionTheme');
+                    nextMissionDurationEl.textContent = getMissionDuration(currentMission + 1);
+                    nextMissionThemeEl.textContent = galaxyThemes[gIdx][currentMission % 5].name;
+                }
+                
+                scoreDisplay.style.display = 'none';
+                pointsDisplay.style.display = 'none';
+                powerUpStatus.style.display = 'none';
+                gamePausedIndicator.style.display = 'none';
+                powerUpCountdown.style.display = 'none';
+                missionSuccessScreen.style.display = 'flex';
+                
+                // Clear objects
+                if (rocketLauncher) {
+                    rocketLauncher.clearAllObjects();
+                }
+                document.querySelectorAll('.power-up').forEach(p => p.remove());
+                document.removeEventListener('mousemove', checkMouseBounds);
+            }
+            
+            function createCelebrationSound() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+                    // Multiple popping bursts to mimic confetti explosions
+                    const burstTimes = [0, 0.15, 0.35, 0.6, 0.9, 1.3];
+                    const notes = [523, 659, 784, 1047, 880, 1175]; // C5, E5, G5, C6, A5, D6
+
+                    burstTimes.forEach((time, i) => {
+                        // Short pop noise
+                        const bufferSize = ctx.sampleRate * 0.08;
+                        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let j = 0; j < bufferSize; j++) {
+                            data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufferSize, 3);
+                        }
+                        const noise = ctx.createBufferSource();
+                        noise.buffer = buffer;
+                        const noiseGain = ctx.createGain();
+                        noiseGain.gain.setValueAtTime(0.4, ctx.currentTime + time);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time + 0.08);
+                        noise.connect(noiseGain);
+                        noiseGain.connect(ctx.destination);
+                        noise.start(ctx.currentTime + time);
+
+                        // Bright tone ping on each burst
+                        const osc = ctx.createOscillator();
+                        const oscGain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(notes[i], ctx.currentTime + time);
+                        osc.frequency.exponentialRampToValueAtTime(notes[i] * 1.5, ctx.currentTime + time + 0.15);
+                        oscGain.gain.setValueAtTime(0.3, ctx.currentTime + time);
+                        oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time + 0.25);
+                        osc.connect(oscGain);
+                        oscGain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + time);
+                        osc.stop(ctx.currentTime + time + 0.25);
+                    });
+
+                    // Rising triumphant chord sweep at the end
+                    [523, 659, 784, 1047].forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0, ctx.currentTime + 1.5 + i * 0.08);
+                        gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 1.6 + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + 1.5 + i * 0.08);
+                        osc.stop(ctx.currentTime + 2.5);
+                    });
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            function createConfetti() {
+                const colors = ['#ffd93d', '#ff6b6b', '#4ecdc4', '#45a29e', '#66fcf1', '#a8e6cf'];
+                for (let i = 0; i < 100; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        confetti.style.left = Math.random() * 100 + '%';
+                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        confetti.style.animationDelay = Math.random() * 2 + 's';
+                        document.body.appendChild(confetti);
+                        
+                        setTimeout(() => {
+                            confetti.remove();
+                        }, 3000);
+                    }, i * 30);
+                }
+            }
+
+            function checkMouseBounds(e) {
+                const gameRect = {
+                    left: 58, // Increased from 54 to reduce gap
+                    top: 58,
+                    right: window.innerWidth - 58,
+                    bottom: window.innerHeight - 58
+                };
+
+                const wasOutOfBounds = mouseOutOfBounds;
+                mouseOutOfBounds = (e.clientX <= gameRect.left || e.clientX >= gameRect.right || 
+                                   e.clientY <= gameRect.top || e.clientY >= gameRect.bottom);
+                
+                if (mouseOutOfBounds && !wasOutOfBounds) {
+                    // Just went out of bounds - FULLY pause game
+                    gamePaused = true;
+                    gamePausedIndicator.style.display = 'block';
+                    pauseStartTime = Date.now();
+                    
+                    // Pause all rocket animations
+                    document.querySelectorAll('.rocket, .collectible').forEach(obj => {
+                        obj.style.animationPlayState = 'paused';
+                    });
+                } else if (!mouseOutOfBounds && wasOutOfBounds) {
+                    // Just came back in bounds - resume game
+                    gamePaused = false;
+                    gamePausedIndicator.style.display = 'none';
+                    if (pauseStartTime > 0) {
+                        pausedTime += Date.now() - pauseStartTime;
+                        pauseStartTime = 0;
+                    }
+                    
+                    // Resume all rocket animations
+                    document.querySelectorAll('.rocket, .collectible').forEach(obj => {
+                        obj.style.animationPlayState = 'running';
+                    });
+                }
+            }
+
+            function startGame() {
+                // Track attempted missions per difficulty for the levels screen
+                const prev = getAttempted(selectedDifficulty);
+                if (currentMission > prev) {
+                    saveAttempted(selectedDifficulty, currentMission);
+                }
+                gameActive = true;
+                gamePaused = false;
+                rocketsDodged = 0;
+                collectiblesCollected = 0;
+                totalPoints = 0;
+                lastPointSecond = 0;
+                nextMilestone = 50000;
+                pointsScore.textContent = '0';
+                isInvincible = false;
+                invincibilityTimeLeft = 0;
+                mouseOutOfBounds = false;
+                pausedTime = 0;
+                pauseStartTime = 0;
+                gameStartTime = Date.now();
+                missionStartTime = gameStartTime;
+                
+                // Apply current theme
+                applyTheme(getCurrentTheme());
+                
+                homeScreen.style.display = 'none';
+                scoreDisplay.style.display = 'block';
+                pointsDisplay.style.display = 'block';
+                gamePausedIndicator.style.display = 'none';
+                powerUpStatus.style.display = 'none';
+                
+                // Update mission info
+                document.getElementById('gameTitle').textContent = `${getCurrentTheme().name.toUpperCase()} - ${missionDuration}s`;
+                
+                // Difficulty speed multipliers: easy = slower, hard = faster
+                const speedMultipliers = { easy: 1.8, medium: 1.0, hard: 0.5 };
+                window.rocketSpeedMultiplier = speedMultipliers[selectedDifficulty] || 1.0;
+
+                rocketLauncher = new RocketLauncher(
+                    () => {
+                        if (gameActive && !isInvincible) {
+                            gameOver();
+                        }
+                    }, 
+                    () => {
+                        if (!gamePaused && gameActive) {
+                            rocketsDodged++;
+                            rocketScore.textContent = rocketsDodged;
+                        }
+                    },
+                    () => {
+                        if (!gamePaused && gameActive) {
+                            collectiblesCollected++;
+                            collectibleScore.textContent = collectiblesCollected;
+                            addPoints(2500);
+                        }
+                    }
+                );
+                window.rocketLauncherRef = rocketLauncher;
+                
+                // Hard difficulty starts with a shorter spawn interval
+                const isHard = selectedDifficulty === 'hard';
+                const isEasy = selectedDifficulty === 'easy';
+                let interval = isHard ? 450 : isEasy ? 900 : 600;
+                const minInterval = isHard ? 100 : isEasy ? 300 : 150;
+                const speedUpRate = 0.96; // Faster speed-up from 0.98
+                
+                function launchObjects() {
+                    if (!gameActive) return;
+                    if (!gamePaused) {
+                        // Supernova / Sunset mission: no rockets, collectibles only
+                        if (getCurrentTheme().name !== 'Supernova Mission' &&
+                            getCurrentTheme().name !== 'Sunset Mission') {
+                            rocketLauncher.launchRocket();
+                        }
+                        
+                        // Occasionally spawn collectibles (much less frequent than rockets)
+                        if (Math.random() < 0.2) {
+                            rocketLauncher.launchCollectible();
+                        }
+                    }
+                    interval = Math.max(minInterval, interval * speedUpRate);
+                    setTimeout(launchObjects, interval);
+                }
+                
+                launchObjects();
+                gameTimer = setInterval(updateTimer, 100);
+                
+                // Spawn power-ups every 30 seconds
+                powerUpSpawnTimer = setInterval(() => {
+                    if (gameActive && !gamePaused) {
+                        spawnPowerUp();
+                    }
+                }, 30000);
+                
+                // Add mouse move listener for boundary checking
+                document.addEventListener('mousemove', checkMouseBounds);
+
+                // Start background music
+                if (window.startSpaceMusic) window.startSpaceMusic();
+
+                // Start boss fight for Supernova Mission
+                if (getCurrentTheme().name === 'Supernova Mission') {
+                    setTimeout(() => { if (gameActive && window.startBoss) window.startBoss(); }, 1500);
+                }
+                if (getCurrentTheme().name === 'Sunset Mission') {
+                    setTimeout(() => { if (gameActive && window.startSunBoss) window.startSunBoss(); }, 1500);
+                }
+            }
+
+            function gameOver() {
+                gameActive = false;
+                gamePaused = false;
+                clearInterval(gameTimer);
+                clearInterval(powerUpSpawnTimer);
+                if (invincibilityTimer) {
+                    clearInterval(invincibilityTimer);
+                }
+                forcefield.classList.remove('active', 'warning');
+                if (window.stopBoss) window.stopBoss();
+                if (window.stopSunBoss) window.stopSunBoss();
+                if (window.stopSpaceMusic) window.stopSpaceMusic();
+                createExplosionSound();
+                
+                const survivalTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
+                finalTime.textContent = survivalTime;
+                finalRockets.textContent = rocketsDodged;
+                finalCollectibles.textContent = collectiblesCollected;
+                
+                scoreDisplay.style.display = 'none';
+                pointsDisplay.style.display = 'none';
+                powerUpStatus.style.display = 'none';
+                gamePausedIndicator.style.display = 'none';
+                powerUpCountdown.style.display = 'none';
+                gameOverScreen.style.display = 'flex';
+                
+                // Reset game-over title in case supernova changed it
+                document.querySelector('.game-over-title').textContent = '💥 MISSION FAILED! 💥';
+                
+                // Remove power-ups and all rockets immediately
+                document.querySelectorAll('.power-up').forEach(p => p.remove());
+                if (rocketLauncher) {
+                    rocketLauncher.clearAllObjects();
+                }
+                document.removeEventListener('mousemove', checkMouseBounds);
+            }
+
+            function startNextMission() {
+                currentMission++;
+                missionDuration = getMissionDuration(currentMission);
+                document.getElementById('missionSuccessScreen').style.display = 'none';
+                clearTrail();
+                timeScore.textContent = '0';
+                rocketScore.textContent = '0';
+                collectibleScore.textContent = '0';
+                startGame();
+            }
+
+            function startNextGalaxy() {
+                currentGalaxy++;
+                currentMission = (currentGalaxy - 1) * 5 + 1;
+                missionDuration = getMissionDuration(currentMission);
+                document.getElementById('missionSuccessScreen').style.display = 'none';
+                clearTrail();
+                timeScore.textContent = '0';
+                rocketScore.textContent = '0';
+                collectibleScore.textContent = '0';
+                startGame();
+            }
+
+            function startPrevGalaxy() {
+                currentGalaxy--;
+                currentMission = (currentGalaxy - 1) * 5 + 1;
+                missionDuration = getMissionDuration(currentMission);
+                document.getElementById('missionSuccessScreen').style.display = 'none';
+                clearTrail();
+                timeScore.textContent = '0';
+                rocketScore.textContent = '0';
+                collectibleScore.textContent = '0';
+                startGame();
+            }
+
+            function resetGame() {
+                gameActive = false;
+                gamePaused = false;
+                isInvincible = false;
+                invincibilityTimeLeft = 0;
+                mouseOutOfBounds = false;
+                pausedTime = 0;
+                currentMission = 1;
+                currentGalaxy = 1;
+                missionDuration = 60;
+                clearInterval(gameTimer);
+                clearInterval(powerUpSpawnTimer);
+                if (invincibilityTimer) {
+                    clearInterval(invincibilityTimer);
+                }
+                forcefield.classList.remove('active', 'warning');
+                if (window.stopBoss) window.stopBoss();
+                if (window.stopSunBoss) window.stopSunBoss();
+                if (window.stopSpaceMusic) window.stopSpaceMusic();
+                
+                // Reset theme
+                applyTheme(getCurrentTheme());
+                
+                // Properly clear all objects
+                if (rocketLauncher) {
+                    rocketLauncher.clearAllObjects();
+                }
+                
+                // Remove power-ups and confetti
+                document.querySelectorAll('.power-up, .confetti').forEach(p => p.remove());
+                
+                gameOverScreen.style.display = 'none';
+                document.getElementById('missionSuccessScreen').style.display = 'none';
+                homeScreen.style.display = 'flex';
+                powerUpStatus.style.display = 'none';
+                gamePausedIndicator.style.display = 'none';
+                powerUpCountdown.style.display = 'none';
+                clearTrail();
+                timeScore.textContent = '0';
+                rocketScore.textContent = '0';
+                collectibleScore.textContent = '0';
+                pointsScore.textContent = '0';
+                rocketsDodged = 0;
+                collectiblesCollected = 0;
+                totalPoints = 0;
+                lastPointSecond = 0;
+                nextMilestone = 50000;
+                forcefield.classList.remove('active', 'warning');
+                
+                document.removeEventListener('mousemove', checkMouseBounds);
+            }
+
+            let levelsBrowseDiff = selectedDifficulty;
+
+            function renderLevelsGrid() {
+                const levelsScreen = document.getElementById('levelsScreen');
+                const grid = document.getElementById('levelsGrid');
+                grid.innerHTML = '';
+                const attempted = getAttempted(levelsBrowseDiff);
+                const galaxyIcons = [
+                    ['🌌','🔥','🌊','🌿','🌅'],
+                    ['🔮','🪨','🌀','☄️','💥'],
+                ];
+
+                galaxyThemes.forEach((galaxy, gIdx) => {
+                    // Galaxy header
+                    const header = document.createElement('div');
+                    header.className = 'level-card-galaxy-header';
+                    header.textContent = `— ${(galaxyNames[gIdx] || 'GALAXY ' + (gIdx + 1)).toUpperCase()} —`;
+                    header.style.cssText = 'width:100%;text-align:center;font-family:"Orbitron",monospace;font-size:0.8rem;letter-spacing:3px;color:#a855f7;text-shadow:0 0 10px #a855f7;margin:12px 0 4px;grid-column:1/-1;';
+                    grid.appendChild(header);
+
+                    galaxy.forEach((theme, i) => {
+                        const missionNum = gIdx * 5 + i + 1;
+                        const unlocked = true; // TODO: restore lock after testing — was: missionNum <= attempted
+                        const card = document.createElement('div');
+                        card.className = 'level-card ' + (unlocked ? 'unlocked' : 'locked');
+                        card.innerHTML = `
+                            <div class="level-card-icon">${unlocked ? galaxyIcons[gIdx][i] : '🔒'}</div>
+                            <div class="level-card-number">LVL ${missionNum}</div>
+                            <div class="level-card-name">${theme.name.toUpperCase()}</div>
+                            <div class="level-card-duration">${theme.duration}s</div>
+                        `;
+                        if (unlocked) {
+                            card.addEventListener('click', () => {
+                                levelsScreen.style.display = 'none';
+                                selectedDifficulty = levelsBrowseDiff;
+                                Object.values(diffButtons).forEach(b => b.classList.remove('diff-selected'));
+                                diffButtons[selectedDifficulty].classList.add('diff-selected');
+                                currentMission = missionNum;
+                                currentGalaxy = gIdx + 1;
+                                missionDuration = getMissionDuration(missionNum);
+                                timeScore.textContent = '0';
+                                rocketScore.textContent = '0';
+                                collectibleScore.textContent = '0';
+                                clearTrail();
+                                startGame();
+                            });
+                        }
+                        grid.appendChild(card);
+                    });
+                });
+            }
+
+            function showLevelsScreen() {
+                levelsBrowseDiff = selectedDifficulty;
+                // Sync tab active state
+                document.querySelectorAll('.levels-diff-tab').forEach(t => {
+                    t.classList.toggle('active', t.dataset.diff === levelsBrowseDiff);
+                });
+                renderLevelsGrid();
+                homeScreen.style.display = 'none';
+                document.getElementById('levelsScreen').style.display = 'flex';
+            }
+
+            document.querySelectorAll('.levels-diff-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    levelsBrowseDiff = tab.dataset.diff;
+                    document.querySelectorAll('.levels-diff-tab').forEach(t => t.classList.toggle('active', t === tab));
+                    renderLevelsGrid();
+                });
+            });
+
+            startBtn.addEventListener('click', startGame);
+            playAgainBtn.addEventListener('click', () => {
+                // Restart the same mission that just failed
+                gameOverScreen.style.display = 'none';
+                clearTrail();
+                timeScore.textContent = '0';
+                rocketScore.textContent = '0';
+                collectibleScore.textContent = '0';
+                startGame();
+            });
+            document.getElementById('menuBtn').addEventListener('click', resetGame);
+            document.getElementById('nextMissionBtn').addEventListener('click', startNextMission);
+            document.getElementById('nextGalaxyBtn').addEventListener('click', startNextGalaxy);
+            document.getElementById('prevGalaxyBtn').addEventListener('click', startPrevGalaxy);
+            document.getElementById('successMenuBtn').addEventListener('click', resetGame);
+            document.getElementById('levelsBtn').addEventListener('click', showLevelsScreen);
+            document.getElementById('levelsBackBtn').addEventListener('click', () => {
+                document.getElementById('levelsScreen').style.display = 'none';
+                homeScreen.style.display = 'flex';
+            });
+
+            // ── Boss Star (Supernova Mission) ─────────────────────────────
+            const bossEl = document.getElementById('bossStar');
+            let bossActive = false;
+            let bossX = 0, bossY = 0;          // current position (screen px)
+            let bossTargetX = 0, bossTargetY = 0; // current waypoint
+            let bossRafId = null;
+            let bossShootTimer = null;
+            const BOSS_RADIUS = 75;             // collision radius (px)
+            const BOSS_ROCKET_SPEED    = 2400;   // ms — aimed rockets
+            const BOSS_ASTEROID_SPEED  = 4200;   // ms — tumbling rock
+            const BOSS_UFO_SPEED       = 3400;   // ms — satellite
+            const BOSS_BLACKHOLE_SPEED = 6000;   // ms — slow but huge hitbox
+
+            // Rocket/missile image pools
+            const SPACE_ROCKET_IMGS  = [
+                'assets/images/rockets/spaceRockets_001.png',
+                'assets/images/rockets/spaceRockets_002.png',
+                'assets/images/rockets/spaceRockets_003.png',
+                'assets/images/rockets/spaceRockets_004.png',
+            ];
+            const SPACE_MISSILE_IMGS = [
+                'assets/images/rockets/spaceMissiles_001.png',
+                'assets/images/rockets/spaceMissiles_006.png',
+                'assets/images/rockets/spaceMissiles_007.png',
+                'assets/images/rockets/spaceMissiles_018.png',
+                'assets/images/rockets/spaceMissiles_040.png',
+            ];
+            function randRocketImg(pool, size) {
+                const src = pool[Math.floor(Math.random() * pool.length)];
+                return `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain;display:block;pointer-events:none;">`;
+            }
+
+            // Returns a random point inside the safe gameplay area
+            function bossRandomPos() {
+                const W = window.innerWidth, H = window.innerHeight;
+                const PAD_X = 110, PAD_TOP = 180, PAD_BOT = 110;
+                return {
+                    x: PAD_X + Math.random() * (W - PAD_X * 2),
+                    y: PAD_TOP + Math.random() * (H - PAD_TOP - PAD_BOT)
+                };
+            }
+
+            function moveBoss() {
+                if (!bossActive) return;
+                const SPEED = 2.2; // px per frame (~132 px/s at 60fps)
+                const dx = bossTargetX - bossX, dy = bossTargetY - bossY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 8) {
+                    // Reached waypoint — pick a new random one
+                    const next = bossRandomPos();
+                    bossTargetX = next.x;
+                    bossTargetY = next.y;
+                } else {
+                    bossX += (dx / dist) * SPEED;
+                    bossY += (dy / dist) * SPEED;
+                }
+
+                bossEl.style.left = bossX + 'px';
+                bossEl.style.top  = bossY + 'px';
+
+                // Check if cursor touched the boss
+                const cur = window.currentMousePosition;
+                if (cur && gameActive && !isInvincible) {
+                    const sx = cur.x + 58, sy = cur.y + 58;
+                    const dx = sx - bossX, dy = sy - bossY;
+                    if (dx*dx + dy*dy < BOSS_RADIUS * BOSS_RADIUS) {
+                        triggerSupernova();
+                        return;
+                    }
+                }
+                bossRafId = requestAnimationFrame(moveBoss);
+            }
+
+            // ── Generalised boss hazard launcher ─────────────────────────
+            function fireBossHazard({ emoji, cssClass, speed, hitRadius, spreadDeg = 0, hasAnimation = false }) {
+                if (!bossActive || !gameActive || gamePaused) return;
+                const cur = window.currentMousePosition;
+                const targetX = cur ? cur.x + 58 : window.innerWidth / 2;
+                const targetY = cur ? cur.y + 58 : window.innerHeight / 2;
+
+                const dx = targetX - bossX, dy = targetY - bossY;
+                const rad = spreadDeg * Math.PI / 180;
+                const spreadDx = dx * Math.cos(rad) - dy * Math.sin(rad);
+                const spreadDy = dx * Math.sin(rad) + dy * Math.cos(rad);
+
+                const overshoot = 1.8;
+                const endX = bossX + spreadDx * overshoot;
+                const endY = bossY + spreadDy * overshoot;
+
+                const r = document.createElement('div');
+                r.className = cssClass;
+                r.innerHTML = emoji;
+
+                if (hasAnimation) {
+                    // CSS animation handles centering via translate(-50%,-50%) inside keyframes
+                    r.style.cssText = `left:${bossX}px;top:${bossY}px;`;
+                } else {
+                    const angle = Math.atan2(spreadDy, spreadDx) * 180 / Math.PI + 90;
+                    r.style.cssText = `left:${bossX}px;top:${bossY}px;transform:rotate(${angle}deg) translate(-50%,-50%);`;
+                }
+                document.body.appendChild(r);
+
+                requestAnimationFrame(() => {
+                    r.style.transition = `left ${speed}ms linear, top ${speed}ms linear`;
+                    r.style.left = endX + 'px';
+                    r.style.top  = endY + 'px';
+                });
+
+                const check = setInterval(() => {
+                    if (!r.parentNode) { clearInterval(check); return; }
+                    const rc = r.getBoundingClientRect();
+                    const cur2 = window.currentMousePosition;
+                    if (!cur2) return;
+                    const sx = cur2.x + 58, sy = cur2.y + 58;
+                    const cx = rc.left + rc.width / 2, cy = rc.top + rc.height / 2;
+                    const ddx = sx - cx, ddy = sy - cy;
+                    if (ddx*ddx + ddy*ddy < hitRadius*hitRadius && gameActive && !isInvincible) {
+                        clearInterval(check);
+                        r.remove();
+                        gameOver();
+                    }
+                }, 16);
+
+                setTimeout(() => { clearInterval(check); r.remove(); }, speed + 200);
+            }
+
+            function fireBossRocket(spreadDeg = 0) {
+                fireBossHazard({ emoji: randRocketImg(SPACE_MISSILE_IMGS, 42), cssClass: 'boss-rocket', speed: BOSS_ROCKET_SPEED, hitRadius: 26, spreadDeg });
+            }
+            function fireBossAsteroid(spreadDeg = 0) {
+                fireBossHazard({ emoji: '☄️',  cssClass: 'boss-asteroid', speed: BOSS_ASTEROID_SPEED,  hitRadius: 32, spreadDeg, hasAnimation: true });
+            }
+            function fireBossUFO(spreadDeg = 0) {
+                fireBossHazard({ emoji: '�️',  cssClass: 'boss-ufo',      speed: BOSS_UFO_SPEED,       hitRadius: 28, spreadDeg });
+            }
+            function fireBossBlackHole(spreadDeg = 0) {
+                fireBossHazard({ emoji: '🌑',  cssClass: 'boss-blackhole', speed: BOSS_BLACKHOLE_SPEED, hitRadius: 42, spreadDeg, hasAnimation: true });
+            }
+
+            function startBoss() {
+                if (bossActive) return;
+                bossActive = true;
+                // Spawn at a random position in the gameplay area
+                const spawn = bossRandomPos();
+                bossX = spawn.x;
+                bossY = spawn.y;
+                const firstTarget = bossRandomPos();
+                bossTargetX = firstTarget.x;
+                bossTargetY = firstTarget.y;
+                bossEl.style.left = bossX + 'px';
+                bossEl.style.top  = bossY + 'px';
+                bossEl.style.display = 'block';
+
+                // Switch to boss music
+                if (window.startBossMusic) window.startBossMusic();
+                const warn = document.createElement('div');
+                warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:"Orbitron",monospace;font-size:2.5rem;font-weight:900;color:#ffea00;text-shadow:0 0 30px #ffea00,0 0 60px #ff6d00;z-index:5100;pointer-events:none;animation:successPulse 0.5s ease-in-out infinite alternate;';
+                warn.textContent = '⚠️ BOSS APPROACHING ⚠️';
+                document.body.appendChild(warn);
+                setTimeout(() => warn.remove(), 2500);
+
+                moveBoss();
+
+                // Salvo pattern — escalates fast; mixes in asteroids, UFOs, black holes
+                let salvos = 0;
+                function salvo() {
+                    if (!bossActive) return;
+                    salvos++;
+                    // Core aimed rockets: starts at 2, reaches 6 by salvo 10
+                    const count = Math.min(1 + Math.floor(salvos / 4), 4);
+                    for (let i = 0; i < count; i++) {
+                        setTimeout(() => fireBossRocket(0), i * 300);
+                    }
+                    // Spread side rockets unlock at salvo 6
+                    if (salvos >= 6) {
+                        const spreadAngles = salvos >= 10 ? [-30, -15, 15, 30] : [-20, 20];
+                        spreadAngles.forEach((deg, si) => {
+                            setTimeout(() => fireBossRocket(deg), si * 220 + 400);
+                        });
+                    }
+                    // ☄️ Asteroid volley — every 3rd salvo, up to 3 rocks
+                    if (salvos % 3 === 0) {
+                        const aCount = Math.min(1 + Math.floor(salvos / 6), 3);
+                        for (let i = 0; i < aCount; i++) {
+                            const spread = (i - Math.floor(aCount / 2)) * 28;
+                            setTimeout(() => fireBossAsteroid(spread), count * 250 + i * 420);
+                        }
+                    }
+                    // 🛸 UFO beam — every 4th salvo from salvo 4 onwards
+                    if (salvos >= 4 && salvos % 4 === 0) {
+                        setTimeout(() => fireBossUFO(0), count * 250 + 300);
+                        if (salvos >= 12) {
+                            setTimeout(() => fireBossUFO(18),  count * 250 + 700);
+                            setTimeout(() => fireBossUFO(-18), count * 250 + 700);
+                        }
+                    }
+                    // 🌑 Black hole — every 6th salvo from salvo 6 onwards
+                    if (salvos >= 6 && salvos % 6 === 0) {
+                        setTimeout(() => fireBossBlackHole(0), count * 250 + 900);
+                    }
+                    // Interval drops from 3000ms → 1000ms over time
+                    bossShootTimer = setTimeout(salvo, Math.max(1600, 3800 - salvos * 100));
+                }
+                bossShootTimer = setTimeout(salvo, 3500);
+            }
+
+            function stopBoss() {
+                bossActive = false;
+                bossEl.style.display = 'none';
+                if (bossRafId) { cancelAnimationFrame(bossRafId); bossRafId = null; }
+                if (bossShootTimer) { clearTimeout(bossShootTimer); bossShootTimer = null; }
+                document.querySelectorAll('.boss-rocket, .boss-asteroid, .boss-ufo, .boss-blackhole').forEach(r => r.remove());
+                // Stop boss music and resume normal playlist
+                if (window.stopBossMusic) window.stopBossMusic();
+                if (gameActive && window.startSpaceMusic) window.startSpaceMusic();
+            }
+
+            function triggerSupernova() {
+                if (!gameActive) return;
+                stopBoss();
+                gameActive = false;
+                gamePaused = false;
+                clearInterval(gameTimer);
+                clearInterval(powerUpSpawnTimer);
+                if (window.stopSpaceMusic) window.stopSpaceMusic();
+
+                // Ring wave animation
+                const colors = ['#fff', '#ffea00', '#ff9800', '#ff4400', '#ff0000'];
+                for (let i = 0; i < 5; i++) {
+                    const ring = document.createElement('div');
+                    ring.className = 'supernova-ring';
+                    const size = 80 + i * 120;
+                    ring.style.cssText = `left:${bossX}px;top:${bossY}px;width:${size}px;height:${size}px;border-color:${colors[i]};`;
+                    document.body.appendChild(ring);
+                    requestAnimationFrame(() => {
+                        ring.style.transition = `transform ${1.2 + i*0.35}s ease-out, opacity ${1.0 + i*0.35}s ease-out`;
+                        ring.style.transform = `translate(-50%,-50%) scale(${4 + i * 3})`;
+                        ring.style.opacity = '0';
+                    });
+                    setTimeout(() => ring.remove(), (1.6 + i*0.35) * 1000);
+                }
+
+                // White flash then orange fill
+                const overlay = document.getElementById('supernovaOverlay');
+                overlay.style.cssText = `display:block;position:fixed;inset:0;z-index:5000;pointer-events:none;background:radial-gradient(circle, #fff 0%, #ffea00 20%, #ff6d00 45%, #ff2200 65%, transparent 85%);border-radius:0;left:0;top:0;width:100%;height:100%;transform:scale(0);opacity:0;margin:0;`;
+                requestAnimationFrame(() => {
+                    overlay.style.transition = 'transform 0.9s ease-out, opacity 0.9s ease-out';
+                    overlay.style.transform = 'scale(1)';
+                    overlay.style.opacity = '1';
+                });
+
+                // Shake the page
+                document.body.style.animation = 'none';
+                let shakes = 0;
+                const shakeId = setInterval(() => {
+                    document.body.style.transform = `translate(${(Math.random()-0.5)*18}px,${(Math.random()-0.5)*18}px)`;
+                    if (++shakes > 20) { clearInterval(shakeId); document.body.style.transform = ''; }
+                }, 50);
+
+                // After flash, fade out and show game-over
+                setTimeout(() => {
+                    overlay.style.transition = 'opacity 1.2s ease-in';
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        // Show game-over with special message
+                        const survivalTime = Math.floor((Date.now() - gameStartTime - pausedTime) / 1000);
+                        finalTime.textContent = survivalTime;
+                        finalRockets.textContent = rocketsDodged;
+                        finalCollectibles.textContent = collectiblesCollected;
+                        document.querySelector('.game-over-title').textContent = '💥 TOUCHED THE STAR! 💥';
+                        scoreDisplay.style.display = 'none';
+                        pointsDisplay.style.display = 'none';
+                        powerUpStatus.style.display = 'none';
+                        gamePausedIndicator.style.display = 'none';
+                        powerUpCountdown.style.display = 'none';
+                        gameOverScreen.style.display = 'flex';
+                        document.querySelectorAll('.power-up').forEach(p => p.remove());
+                        if (rocketLauncher) rocketLauncher.clearAllObjects();
+                        document.removeEventListener('mousemove', checkMouseBounds);
+                    }, 1300);
+                }, 950);
+            }
+
+            window.startBoss = startBoss;
+            window.stopBoss  = stopBoss;
+
+            // ── Sun Boss (Sunset Mission) ─────────────────────────────────
+            const sunBossEl  = document.getElementById('sunBoss');
+            const uvOverlay  = document.getElementById('uvOverlay');
+            const sunHealthBar  = document.getElementById('sunHealthBar');
+            const sunHealthFill = document.getElementById('sunHealthFill');
+            let sunBossActive   = false;
+            let sunHealth       = 100;   // 0–100 %
+            let sunHealthTimer  = null;  // setInterval for overlay sync
+            let lastDangerDrainTime = 0; // ms timestamp — throttle beam damage to 100ms
+            let sunBossX = 0, sunBossY = 0;
+            let sunBossTargetX = 0, sunBossTargetY = 0;
+            let sunBossRafId = null;
+            let sunShootTimer = null;
+            const SUN_RADIUS         = 85;   // px — touching the sun = death
+            const SUN_FIREBALL_SPEED = 2200; // ms
+            const SUN_ROCKET_SPEED   = 3200; // ms
+            const SUN_BEAM_WIDTH     = 90;   // px — UV ray beam width
+            const SUN_BEAM_LENGTH    = 850;  // px — targeted beam, not full-screen
+            const SUN_BEAM_DURATION  = 5000; // ms a UV beam lasts
+            const SUN_BEAM_SWEEP     = 0.016; // rad/frame sweep speed
+
+            function sunRandomPos() {
+                const W = window.innerWidth, H = window.innerHeight;
+                const PX = 140, PT = 220, PB = 140;
+                return { x: PX + Math.random() * (W - PX * 2), y: PT + Math.random() * (H - PT - PB) };
+            }
+
+            function moveSunBoss() {
+                if (!sunBossActive) return;
+                const SPEED = 1.6;
+                const dx = sunBossTargetX - sunBossX, dy = sunBossTargetY - sunBossY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 10) {
+                    const n = sunRandomPos(); sunBossTargetX = n.x; sunBossTargetY = n.y;
+                } else {
+                    sunBossX += (dx / dist) * SPEED;
+                    sunBossY += (dy / dist) * SPEED;
+                }
+                sunBossEl.style.left = sunBossX + 'px';
+                sunBossEl.style.top  = sunBossY + 'px';
+
+                // Reset UV state each frame — active UV beam rAFs will set it back
+                window.sunInUVRay = false;
+                uvOverlay.style.display = 'none';
+
+                // Default: ship position = raw cursor (UV beam rAFs override this)
+                const cur = window.currentMousePosition;
+                if (cur) { window.shipX = cur.x + 58; window.shipY = cur.y + 58; }
+
+            // Check sun touch using the (possibly UV-slowed) ship position
+                if (cur && gameActive && !isInvincible) {
+                    const sx = window.shipX ?? (cur.x + 58), sy = window.shipY ?? (cur.y + 58);
+                    const ddx = sx - sunBossX, ddy = sy - sunBossY;
+                    if (ddx * ddx + ddy * ddy < SUN_RADIUS * SUN_RADIUS) {
+                        triggerSunburn(); return;
+                    }
+                }
+                sunBossRafId = requestAnimationFrame(moveSunBoss);
+            }
+
+            // Generic sun hazard fire helper
+            function fireSunHazard({ emoji, cssClass, speed, hitRadius, spreadDeg = 0, isUV = false }) {
+                if (!sunBossActive || !gameActive || gamePaused) return;
+                const cur = window.currentMousePosition;
+                const tx = cur ? cur.x + 58 : window.innerWidth / 2;
+                const ty = cur ? cur.y + 58 : window.innerHeight / 2;
+                const dx = tx - sunBossX, dy = ty - sunBossY;
+                const rad = spreadDeg * Math.PI / 180;
+                const sdx = dx * Math.cos(rad) - dy * Math.sin(rad);
+                const sdy = dx * Math.sin(rad) + dy * Math.cos(rad);
+                const endX = sunBossX + sdx * 2.2, endY = sunBossY + sdy * 2.2;
+
+                const r = document.createElement('div');
+                r.className = cssClass;
+                r.innerHTML = emoji;
+                if (!isUV) {
+                    const angle = Math.atan2(sdy, sdx) * 180 / Math.PI + 90;
+                    r.style.cssText = `left:${sunBossX}px;top:${sunBossY}px;transform:rotate(${angle}deg) translate(-50%,-50%);`;
+                } else {
+                    r.style.cssText = `left:${sunBossX}px;top:${sunBossY}px;`;
+                }
+                document.body.appendChild(r);
+                requestAnimationFrame(() => {
+                    r.style.transition = `left ${speed}ms linear, top ${speed}ms linear`;
+                    r.style.left = endX + 'px';
+                    r.style.top  = endY + 'px';
+                });
+
+                const check = setInterval(() => {
+                    if (!r.parentNode) { clearInterval(check); return; }
+                    const rc = r.getBoundingClientRect();
+                    const cx = rc.left + rc.width / 2, cy = rc.top + rc.height / 2;
+                    const cur2 = window.currentMousePosition;
+                    if (!cur2) return;
+                    const sx = window.shipX ?? (cur2.x + 58), sy = window.shipY ?? (cur2.y + 58);
+                    const fx = sx - cx, fy = sy - cy;
+                    if (fx * fx + fy * fy < hitRadius * hitRadius && gameActive) {
+                        if (isUV) {
+                            // UV ray: slow the player (no kill)
+                            window.sunInUVRay = true;
+                            uvOverlay.style.display = 'block';
+                        } else if (!isInvincible) {
+                            clearInterval(check); r.remove(); gameOver();
+                        }
+                    }
+                }, 16);
+                setTimeout(() => { clearInterval(check); r.remove(); }, speed + 200);
+            }
+
+            function fireSunFireball(deg = 0) {
+                fireSunHazard({ emoji: '🔥', cssClass: 'sun-fireball', speed: SUN_FIREBALL_SPEED, hitRadius: 28, spreadDeg: deg });
+            }
+            function fireSunRocket(deg = 0) {
+                fireSunHazard({ emoji: randRocketImg(SPACE_MISSILE_IMGS, 42), cssClass: 'boss-rocket', speed: SUN_ROCKET_SPEED, hitRadius: 26, spreadDeg: deg });
+            }
+
+            // ── Dangerous rotating UV beams (health-draining) ────────────────
+            function fireSunDangerBeam() {
+                if (!sunBossActive || !gameActive || gamePaused) return;
+                const DANGER_LENGTH   = 900;  // px
+                const DANGER_WIDTH    = 48;   // px — matches CSS (hitbox = ±24px from beam centre)
+                const DANGER_DURATION = 6000; // ms
+                const ROT_SPEED       = 0.011; // rad/frame (~0.63°/frame)
+
+                // Two beams 180° apart so there are always equal safe arcs
+                const startAngle = Math.random() * Math.PI * 2;
+                [0, Math.PI].forEach(offset => {
+                    const beam = document.createElement('div');
+                    beam.className = 'sun-danger-beam';
+                    beam.style.height = DANGER_LENGTH + 'px';
+                    document.body.appendChild(beam);
+
+                    let angle = startAngle + offset;
+                    const t0 = performance.now();
+
+                    function updateDanger(ts) {
+                        if (!sunBossActive || !beam.parentNode) { beam.remove(); return; }
+                        if (gamePaused) { requestAnimationFrame(updateDanger); return; }
+                        const elapsed = ts - t0;
+                        if (elapsed >= DANGER_DURATION) {
+                            beam.style.transition = 'opacity 0.4s';
+                            beam.style.opacity = '0';
+                            setTimeout(() => beam.remove(), 400);
+                            return;
+                        }
+
+                        angle += ROT_SPEED;
+                        beam.style.left = sunBossX + 'px';
+                        beam.style.top  = sunBossY + 'px';
+
+                        const fade = elapsed > DANGER_DURATION - 700 ? (DANGER_DURATION - elapsed) / 700 : 1;
+                        beam.style.opacity = Math.max(0, fade);
+                        beam.style.transform = `translate(-50%, 0) rotate(${angle}rad)`;
+
+                        // Collision: project ship into beam-local space
+                        const c = window.currentMousePosition;
+                        if (c && gameActive) {
+                            const rawX = c.x + 58, rawY = c.y + 58;
+                            const relX = rawX - sunBossX, relY = rawY - sunBossY;
+                            const bDirX  =  Math.sin(angle), bDirY  = Math.cos(angle);
+                            const bPerpX = -Math.cos(angle), bPerpY = Math.sin(angle);
+                            const along = relX * bDirX  + relY * bDirY;
+                            const perp  = relX * bPerpX + relY * bPerpY;
+                            if (along > SUN_RADIUS && along < DANGER_LENGTH && Math.abs(perp) < DANGER_WIDTH / 2) {
+                                window.sunInUVRay = true;
+                                uvOverlay.style.display = 'block';
+                                // Drain 1 hp every 100ms directly (reliable, no flag-timing race)
+                                if (!isInvincible && ts - lastDangerDrainTime >= 100) {
+                                    lastDangerDrainTime = ts;
+                                    sunHealth = Math.max(0, sunHealth - 1);
+                                    sunHealthFill.style.width = sunHealth + '%';
+                                    if (sunHealth < 30) {
+                                        sunHealthFill.style.background = 'linear-gradient(90deg,#cc0000 0%,#ff2200 100%)';
+                                    } else if (sunHealth < 60) {
+                                        sunHealthFill.style.background = 'linear-gradient(90deg,#ff4500 0%,#ff6600 100%)';
+                                    }
+                                    if (sunHealth <= 0) { triggerSunburn(); return; }
+                                }
+                                if (!isInvincible) {
+                                    const prevX = window.shipX ?? rawX, prevY = window.shipY ?? rawY;
+                                    window.shipX = prevX * 0.87 + rawX * 0.13;
+                                    window.shipY = prevY * 0.87 + rawY * 0.13;
+                                }
+                            }
+                        }
+
+                        requestAnimationFrame(updateDanger);
+                    }
+                    requestAnimationFrame(updateDanger);
+                });
+            }
+
+            function triggerSunburn() {
+                if (!gameActive) return;
+                stopSunBoss();
+                gameOver();
+                setTimeout(() => { document.querySelector('.game-over-title').textContent = '☀️ BURNED BY THE SUN! ☀️'; }, 50);
+            }
+
+            function startSunBoss() {
+                if (sunBossActive) return;
+                sunBossActive = true;
+                sunHealth = 100;
+                sunHealthFill.style.width = '100%';
+                sunHealthFill.style.background = 'linear-gradient(90deg,#ff4500 0%,#ff8c00 45%,#ffd700 100%)';
+                sunHealthBar.style.display = 'block';
+                lastDangerDrainTime = 0; // reset drain throttle for new run
+                window.shipX = undefined; window.shipY = undefined; window.sunInUVRay = false;
+                const sp = sunRandomPos(); sunBossX = sp.x; sunBossY = sp.y;
+                const tg = sunRandomPos(); sunBossTargetX = tg.x; sunBossTargetY = tg.y;
+                sunBossEl.style.left = sunBossX + 'px';
+                sunBossEl.style.top  = sunBossY + 'px';
+                sunBossEl.style.display = 'block';
+
+                const warn = document.createElement('div');
+                warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:"Orbitron",monospace;font-size:2.5rem;font-weight:900;color:#ffd700;text-shadow:0 0 30px #ffd700,0 0 60px #ff8c00;z-index:5100;pointer-events:none;animation:successPulse 0.5s ease-in-out infinite alternate;';
+                warn.textContent = '☀️ SUN APPROACHING ☀️';
+                document.body.appendChild(warn);
+                setTimeout(() => warn.remove(), 2500);
+
+                moveSunBoss();
+
+                let sunSalvos = 0;
+                function sunSalvo() {
+                    if (!sunBossActive) return;
+                    sunSalvos++;
+
+                    // Fireballs — main attack
+                    const fbCount = Math.min(1 + Math.floor(sunSalvos / 3), 5);
+                    for (let i = 0; i < fbCount; i++) setTimeout(() => fireSunFireball(0), i * 320);
+                    if (sunSalvos >= 5) {
+                        const sp = sunSalvos >= 9 ? [-25, 25] : [-18, 18];
+                        sp.forEach((d, i) => setTimeout(() => fireSunFireball(d), i * 260 + 380));
+                    }
+
+                    // Rockets — every 3rd salvo
+                    if (sunSalvos % 3 === 0) {
+                        const rc = Math.min(1 + Math.floor(sunSalvos / 5), 3);
+                        for (let i = 0; i < rc; i++) setTimeout(() => fireSunRocket((i - 1) * 22), i * 420 + 180);
+                    }
+
+                    // Danger beams — every 3rd salvo from salvo 3 (health-draining rotating beams)
+                    if (sunSalvos >= 3 && sunSalvos % 3 === 0) {
+                        setTimeout(fireSunDangerBeam, 500);
+                    }
+
+                    sunShootTimer = setTimeout(sunSalvo, Math.max(1500, 3800 - sunSalvos * 110));
+                }
+                sunShootTimer = setTimeout(sunSalvo, 2500);
+            }
+
+            function stopSunBoss() {
+                sunBossActive = false;
+                sunBossEl.style.display = 'none';
+                uvOverlay.style.display = 'none';
+                sunHealthBar.style.display = 'none';
+                window.sunInUVRay = false;
+                window.shipX = undefined; window.shipY = undefined;
+                if (sunBossRafId) { cancelAnimationFrame(sunBossRafId); sunBossRafId = null; }
+                if (sunShootTimer) { clearTimeout(sunShootTimer); sunShootTimer = null; }
+                if (sunHealthTimer) { clearInterval(sunHealthTimer); sunHealthTimer = null; }
+                document.querySelectorAll('.sun-fireball, .sun-danger-beam').forEach(r => r.remove());
+            }
+
+            window.startSunBoss = startSunBoss;
+            window.stopSunBoss  = stopSunBoss;
+            const BOSS_MUSIC_TRACK = 'assets/music/sci-fi/Security-Breach.mp3';
+            let bossMusicAudio = null;
+            const MUSIC_TRACKS = [
+                'assets/music/sci-fi/Blazing-Stars.mp3',
+                'assets/music/sci-fi/Cold-Moon.mp3',
+                'assets/music/sci-fi/Creature-from-the-Dark-Lagoon.mp3',
+                'assets/music/sci-fi/Dark-Techno-City.mp3',
+                'assets/music/sci-fi/Dizzybot_Remixed.mp3',
+                'assets/music/sci-fi/Eerie-Cyber-World.mp3',
+                'assets/music/sci-fi/Factory-On-Mercury.mp3',
+                'assets/music/sci-fi/Information-Shutdown.mp3',
+                'assets/music/sci-fi/Light-Years_v001.mp3',
+                'assets/music/sci-fi/Midnight-Crawlers.mp3',
+                'assets/music/sci-fi/Night-Winds.mp3',
+                'assets/music/sci-fi/Retro-Sci-Fi-Planet.mp3',
+                'assets/music/sci-fi/Security-Breach.mp3',
+                'assets/music/sci-fi/Steamtech-Mayhem.mp3',
+                'assets/music/sci-fi/The-Creeping-Blob.mp3',
+                'assets/music/sci-fi/The-Darkness-Below.mp3',
+                'assets/music/sci-fi/Theyre-Here.mp3',
+                'assets/music/sci-fi/Trouble-On-Mercury.mp3',
+                'assets/music/sci-fi/Urban-Jungle-2061.mp3',
+                'assets/music/sci-fi/World-of-Automatons.mp3',
+            ];
+
+            let musicAudio = null;
+            let musicMuted = false;
+            let musicRunning = false;
+            let musicPlaylist = [];   // shuffled copy
+            let musicTrackIndex = 0;
+
+            function shuffleArray(arr) {
+                const a = arr.slice();
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function playNextTrack() {
+                if (!musicRunning || musicMuted) return;
+                if (musicTrackIndex >= musicPlaylist.length) {
+                    // Reshuffle when the playlist is exhausted
+                    musicPlaylist = shuffleArray(MUSIC_TRACKS);
+                    musicTrackIndex = 0;
+                }
+                musicAudio.src = musicPlaylist[musicTrackIndex++];
+                musicAudio.play().catch(() => {});
+            }
+
+            function startSpaceMusic() {
+                if (musicMuted || musicRunning) return;
+                musicRunning = true;
+                if (!musicAudio) {
+                    musicAudio = new Audio();
+                    musicAudio.volume = 0.5;
+                    musicAudio.addEventListener('ended', playNextTrack);
+                }
+                musicPlaylist = shuffleArray(MUSIC_TRACKS);
+                musicTrackIndex = 0;
+                playNextTrack();
+            }
+
+            function stopSpaceMusic() {
+                musicRunning = false;
+                if (musicAudio) {
+                    musicAudio.pause();
+                    musicAudio.src = '';
+                }
+            }
+
+            document.getElementById('musicToggle').addEventListener('click', () => {
+                musicMuted = !musicMuted;
+                const btn = document.getElementById('musicToggle');
+                if (musicMuted) {
+                    btn.textContent = '🔇 MUSIC';
+                    stopSpaceMusic();
+                } else {
+                    btn.textContent = '🔊 MUSIC';
+                    if (gameActive) startSpaceMusic();
+                }
+            });
+
+            // Expose start/stop so game functions can call them
+            window.startSpaceMusic = startSpaceMusic;
+            window.stopSpaceMusic  = stopSpaceMusic;
+
+            function startBossMusic() {
+                if (musicMuted) return;
+                stopSpaceMusic();
+                if (!bossMusicAudio) {
+                    bossMusicAudio = new Audio();
+                    bossMusicAudio.volume = 0.6;
+                    bossMusicAudio.loop = true;
+                }
+                bossMusicAudio.src = BOSS_MUSIC_TRACK;
+                bossMusicAudio.currentTime = 0;
+                bossMusicAudio.play().catch(() => {});
+            }
+
+            function stopBossMusic() {
+                if (bossMusicAudio) {
+                    bossMusicAudio.pause();
+                    bossMusicAudio.src = '';
+                }
+            }
+
+            window.startBossMusic = startBossMusic;
+            window.stopBossMusic  = stopBossMusic;
+        };
+    </script>
+
+    <script>
+        // Mouse trail — particle dot system
+        const canvas = document.getElementById('mouseTrailCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = window.innerWidth - 108;
+        let height = window.innerHeight - 108;
+        canvas.width = width;
+        canvas.height = height;
+
+        window.addEventListener('resize', () => {
+            width = window.innerWidth - 108;
+            height = window.innerHeight - 108;
+            canvas.width = width;
+            canvas.height = height;
+        });
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let constrainedX = 0;
+        let constrainedY = 0;
+
+        // Each particle: { x, y, alpha, radius }
+        const particles = [];
+        const MAX_PARTICLES = 60;
+
+        // Update cursor position from any pointer/mouse event so it's never null
+        function updateCursorPosition(clientX, clientY) {
+            const cX = Math.max(58, Math.min(window.innerWidth  - 58, clientX));
+            const cY = Math.max(58, Math.min(window.innerHeight - 58, clientY));
+            window.currentMousePosition = { x: cX - 58, y: cY - 58 };
+        }
+
+        window.addEventListener('pointermove', (e) => updateCursorPosition(e.clientX, e.clientY));
+        window.addEventListener('mousedown',   (e) => updateCursorPosition(e.clientX, e.clientY));
+
+        window.addEventListener('mousemove', (e) => {
+            const gameRect = {
+                left: 58,
+                top: 58,
+                right: window.innerWidth - 58,
+                bottom: window.innerHeight - 58
+            };
+
+            constrainedX = Math.max(gameRect.left, Math.min(gameRect.right, e.clientX));
+            constrainedY = Math.max(gameRect.top, Math.min(gameRect.bottom, e.clientY));
+
+            mouseX = constrainedX - 58;
+            mouseY = constrainedY - 58;
+
+            window.previousMousePosition = window.currentMousePosition || { x: mouseX, y: mouseY };
+            window.currentMousePosition = { x: mouseX, y: mouseY };
+
+            // Move forcefield with cursor
+            forcefield.style.left = constrainedX + 'px';
+            forcefield.style.top  = constrainedY + 'px';
+
+            // Spawn a new trail particle
+            particles.push({ x: mouseX, y: mouseY, alpha: 0.85, radius: 5 });
+            if (particles.length > MAX_PARTICLES) particles.shift();
+        });
+
+        function drawTrail() {
+            ctx.clearRect(0, 0, width, height);
+
+            const theme = window.currentTrailTheme || '';
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                // Fade and shrink
+                p.alpha -= 0.032;
+                p.radius -= 0.08;
+                if (p.alpha <= 0 || p.radius <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                const t = p.alpha / 0.85; // 0..1, 1 = freshest
+                let r, g, b, glowColor;
+
+                if (theme === 'Fire Mission') {
+                    // Hot white core → orange → deep red as it fades
+                    r = Math.round(255);
+                    g = Math.round(t > 0.5 ? 180 * ((t - 0.5) * 2) : 0);
+                    b = Math.round(t > 0.85 ? 200 * ((t - 0.85) / 0.15) : 0);
+                    glowColor = `rgba(255,80,0,${p.alpha * 0.7})`;
+                } else if (theme === 'Forest Mission') {
+                    // Bright lime-green → deep green
+                    r = Math.round(30 + 60 * (1 - t));
+                    g = Math.round(220 + 35 * t);
+                    b = Math.round(60 * (1 - t));
+                    glowColor = `rgba(38,222,129,${p.alpha * 0.6})`;
+                } else if (theme === 'Sunset Mission') {
+                    // Bright yellow → amber → golden
+                    r = 255;
+                    g = Math.round(200 + 55 * t);
+                    b = Math.round(30 * (1 - t));
+                    glowColor = `rgba(255,210,0,${p.alpha * 0.6})`;
+                } else {
+                    // Default: cyan → blue
+                    r = Math.round(102 * t);
+                    g = Math.round(252 * t);
+                    b = 241;
+                    glowColor = `rgba(102,252,241,${p.alpha * 0.6})`;
+                }
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+                ctx.shadowColor = glowColor;
+                ctx.shadowBlur = 10;
+                ctx.fill();
+            }
+
+            requestAnimationFrame(drawTrail);
+
+            // Check collisions every frame — covers the case where mouse never moves
+            if (window.rocketLauncherRef) {
+                window.rocketLauncherRef.checkAllCollisions();
+            }
+
+            // Sync UV overlay visibility (sunInUVRay is reset each rAF by moveSunBoss;
+            // if sunBoss is not active shipX/Y stay undefined → raw cursor used)
+            const _uvEl = document.getElementById('uvOverlay');
+            if (_uvEl) _uvEl.style.display = window.sunInUVRay ? 'block' : 'none';
+        }
+
+        function clearTrail() {
+            particles.length = 0;
+            ctx.clearRect(0, 0, width, height);
+        }
+
+        drawTrail();
+    </script>
+
+</body>
+
+</html>
